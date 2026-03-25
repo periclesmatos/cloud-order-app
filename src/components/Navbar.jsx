@@ -105,8 +105,7 @@ export default function Navbar() {
           {isAuthenticated && user ? (
             <>
               <div className="hidden rounded-2xl bg-slate-100 px-2 py-1 sm:px-3 sm:py-2 text-right md:block">
-                <p className="text-xs sm:text-sm font-semibold text-slate-900">{user.name}</p>
-                <p className="text-[10px] text-slate-500">{user.phone?.slice(-4)}</p>
+                <p className="text-xs sm:text-sm font-semibold text-slate-900">{user.name} {user.phone}</p>
               </div>
               <button
                 type="button"
@@ -123,7 +122,7 @@ export default function Navbar() {
                 onClick={handleAdminClick}
                 className="rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs font-medium transition whitespace-nowrap bg-brand-50 text-brand-700 hover:bg-brand-100 cursor-pointer"
               >
-                <span className="hidden md:inline">Painel Admin</span>
+                <span className="hidden md:inline">Painel Administrativo</span>
                 <span className="md:hidden">👨‍💼</span>
               </button>
             )

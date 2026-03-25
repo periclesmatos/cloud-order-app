@@ -20,7 +20,7 @@ export default function AdminNavbar() {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-1.5 px-2 py-2 sm:gap-3 sm:px-4 lg:px-8 lg:py-3">
-        {/* Logo */}
+
         <Link to="/admin" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 min-w-fit">
           <div className="relative flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm ring-1 ring-brand-500/40">
             <span className="text-base sm:text-lg leading-none">⚙️</span>
@@ -32,8 +32,7 @@ export default function AdminNavbar() {
           </div>
         </Link>
 
-        {/* Navigation - Centered */}
-        <nav className="flex items-center gap-0.5 sm:gap-1 justify-center">
+        <nav className="flex items-center gap-0.5 sm:gap-1 lg:gap-1.5 justify-center">
           <NavLink to="/admin" end className={navClassName} title="Dashboard">
             <span className="hidden md:inline text-xs">Dashboard</span>
             <span className="md:hidden">📊</span>
@@ -48,20 +47,18 @@ export default function AdminNavbar() {
           </NavLink>
         </nav>
 
-        {/* User Info & Logout */}
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-auto">
           <button
             type="button"
             onClick={() => navigate('/')}
             className="rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs font-medium transition whitespace-nowrap bg-brand-50 text-brand-700 hover:bg-brand-100 cursor-pointer"
           >
-            <span className="hidden md:inline">Voltar </span>
+            <span className="hidden md:inline">Pagina inicial</span>
             <span className="md:hidden">🏠</span>
           </button>
           {user && (
             <div className="hidden rounded-lg bg-slate-100 px-2 py-1 text-right sm:flex flex-col">
               <p className="text-xs sm:text-xs font-semibold text-slate-900 leading-tight">{user.name}</p>
-              <p className="text-[10px] text-slate-500">Admin</p>
             </div>
           )}
 
