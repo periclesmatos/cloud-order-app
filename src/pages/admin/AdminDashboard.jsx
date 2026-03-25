@@ -162,6 +162,8 @@ export default function AdminDashboard() {
   const [data, setData] = useState({ orders: [], products: [], customers: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [timeFilter, setTimeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     async function loadData() {
@@ -193,10 +195,30 @@ export default function AdminDashboard() {
     loadData();
   }, [accessToken, clearSession, navigate]);
 
+  // Função para filtrar pedidos por período de tempo
+  const getFilteredOrders = useMemo(() => {
+    if (!data.orders.length) return [];
+
+    const now = new Date();
+    return data.orders.filter((order) => {
+      const orderDate = new Date(order.createdAt);
+      const daysDiff = Math.floor((now - orderDate) / (1000 * 60 * 60 * 24));
+
+      let timeMatches = true;
+      if (timeFilter === '7days') timeMatches = daysDiff <= 7;
+      else if (timeFilter === '30days') timeMatches = daysDiff <= 30;
+      else if (timeFilter === '90days') timeMatches = daysDiff <= 90;
+
+      const statusMatches = statusFilter === 'all' || order.status === statusFilter;
+
+      return timeMatches && statusMatches;
+    });
+  }, [data.orders, timeFilter, statusFilter]);
+
   const stats = useMemo(() => {
-    const totalOrders = data.orders.length || 0;
-    const completedOrders = data.orders.filter((o) => o.status === 'COMPLETED').length || 0;
-    const totalRevenue = data.orders
+    const totalOrders = getFilteredOrders.length || 0;
+    const completedOrders = getFilteredOrders.filter((o) => o.status === 'COMPLETED').length || 0;
+    const totalRevenue = getFilteredOrders
       .filter((o) => o.status === 'COMPLETED')
       .reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
     const totalProducts = data.products.filter((p) => p.isActive).length || 0;
@@ -211,7 +233,7 @@ export default function AdminDashboard() {
       totalCustomers,
       lowStockCount,
     };
-  }, [data]);
+  }, [getFilteredOrders, data.products, data.customers]);
 
   const handleLogout = () => {
     clearSession();
@@ -249,6 +271,38 @@ export default function AdminDashboard() {
           <p className="text-sm font-medium text-red-600">{error}</p>
         </section>
       )}
+
+      <section className="card p-4">
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">Período</label>
+            <select 
+              className="input" 
+              value={timeFilter} 
+              onChange={(e) => setTimeFilter(e.target.value)}
+            >
+              <option value="all">Todos os períodos</option>
+              <option value="7days">Últimos 7 dias</option>
+              <option value="30days">Últimos 30 dias</option>
+              <option value="90days">Últimos 90 dias</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">Status do Pedido</label>
+            <select 
+              className="input" 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">Todos os status</option>
+              <option value="CREATED">Criado</option>
+              <option value="SENT">Enviado</option>
+              <option value="COMPLETED">Concluído</option>
+              <option value="CANCELED">Cancelado</option>
+            </select>
+          </div>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <StatCard 
@@ -291,7 +345,7 @@ export default function AdminDashboard() {
       </section>
 
       <section className="grid gap-8 lg:grid-cols-2">
-        {data.orders.length > 0 ? <OrderStatusChart orders={data.orders} /> : <article className="card p-6">Nenhum pedido encontrado</article>}
+        {getFilteredOrders.length > 0 ? <OrderStatusChart orders={getFilteredOrders} /> : <article className="card p-6">Nenhum pedido encontrado</article>}
         {data.products.length > 0 ? <LowStockProducts products={data.products} /> : <article className="card p-6">Nenhum produto encontrado</article>}
       </section>
     </div>
