@@ -144,7 +144,7 @@ export default function AdminProductsPage() {
   const navigate = useNavigate();
   const accessToken = useAdminAuthStore((state) => state.accessToken);
   const clearSession = useAdminAuthStore((state) => state.clearSession);
-  const { success, error: toastError, loading: toastLoading, dismiss } = useToast();
+  const { success, error: toastError } = useToast();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
