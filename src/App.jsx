@@ -3,6 +3,7 @@ import RequireCustomerAuth from './components/RequireCustomerAuth';
 import Navbar from './components/Navbar';
 import CustomerAuthPage from './pages/auth/CustomerAuthPage';
 import CheckoutPage from './pages/checkout/CheckoutPage';
+import SuccessPage from './pages/checkout/SuccessPage';
 import HomePage from './pages/home/HomePage';
 import MyOrdersPage from './pages/orders/MyOrdersPage';
 
@@ -27,6 +28,14 @@ export default function App() {
             element={
               <RequireCustomerAuth>
                 <CheckoutPage />
+              </RequireCustomerAuth>
+            }
+          />
+          <Route
+            path="/checkout/success"
+            element={
+              <RequireCustomerAuth>
+                <SuccessPage />
               </RequireCustomerAuth>
             }
           />

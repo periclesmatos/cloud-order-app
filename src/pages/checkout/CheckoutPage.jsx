@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import EmptyState from '../home/components/EmptyState';
 import CartItemCard from './components/CartItemCard';
 import { formatCurrency } from '../../utils/format';
+import { createOrder } from '../../service/orderService';
 import {
   createCustomerAddress,
   deleteCustomerAddress,
@@ -10,6 +12,7 @@ import {
   updateCustomerById,
 } from '../../service/customerAuthService';
 import { useCustomerAuthStore } from '../../store/customerAuthStore';
+import { useOrderStore } from '../../store/orderStore';
 import { useProductStore } from '../../store/productStore';
 
 const EMPTY_ADDRESS_FORM = {
@@ -59,6 +62,7 @@ function TrashIcon() {
 }
 
 export default function CheckoutPage() {
+  const navigate = useNavigate();
   const products = useProductStore((state) => state.products);
   const cart = useProductStore((state) => state.cart);
   const isLoading = useProductStore((state) => state.isLoading);
@@ -69,6 +73,7 @@ export default function CheckoutPage() {
   const customer = useCustomerAuthStore((state) => state.customer);
   const accessToken = useCustomerAuthStore((state) => state.accessToken);
   const setCustomer = useCustomerAuthStore((state) => state.setCustomer);
+  const setLastOrder = useOrderStore((state) => state.setLastOrder);
 
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
@@ -221,6 +226,49 @@ export default function CheckoutPage() {
       await refreshCustomer();
     } catch (err) {
       setActionError(err?.response?.data?.error || 'Nao foi possivel excluir o endereco.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleFinalizeOrder() {
+    if (!customer?.id || !selectedAddressId || !accessToken || !cartItems.length) {
+      return;
+    }
+
+    setActionError('');
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        customerId: customer.id,
+        addressId: selectedAddressId,
+        items: cartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+      };
+
+      const response = await createOrder(payload, accessToken);
+
+      const normalizedOrder = {
+        id: response?.id,
+        status: response?.status || 'CREATED',
+        createdAt: response?.createdAt || new Date().toISOString(),
+        total: Number(response?.totalAmount ?? cartTotal),
+        items: (response?.items || []).map((item) => ({
+          id: item.productId,
+          name: item.productName,
+          quantity: item.quantity,
+          subtotal: Number(item.lineTotal ?? 0),
+        })),
+      };
+
+      setLastOrder(normalizedOrder);
+      clearCart();
+      navigate('/checkout/success');
+    } catch (err) {
+      setActionError(err?.response?.data?.error || 'Nao foi possivel finalizar o pedido.');
     } finally {
       setIsSubmitting(false);
     }
@@ -510,10 +558,16 @@ export default function CheckoutPage() {
                 </p>
                 <p className="text-lg font-bold text-slate-900">Total: {formatCurrency(cartTotal)}</p>
               </div>
-              <button type="button" className="btn-primary mt-4 w-full" disabled={!selectedAddressId}>
+              <button
+                type="button"
+                className="btn-primary mt-4 w-full"
+                disabled={!selectedAddressId || isSubmitting}
+                onClick={handleFinalizeOrder}
+              >
                 Finalizar pedido
               </button>
               {!selectedAddressId && <p className="mt-2 text-xs text-slate-500">Selecione um endereco para continuar.</p>}
+              {actionError && <p className="mt-2 text-xs text-red-600">{actionError}</p>}
             </section>
           </>
         )}
