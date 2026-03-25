@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.gitignore
+.env.local
+.env.production
+.DS_Store
+.vscode
+.idea
+README.md
+SECURITY_GETME.md
+*.md
+.eslintrc.cjs
+.prettierignore
