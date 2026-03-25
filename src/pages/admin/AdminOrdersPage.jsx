@@ -4,6 +4,7 @@ import { Search, Calendar, Filter, X, Clock, Package, DollarSign, CheckCircle2, 
 import { getDashboardStats } from '../../service/dashboardService';
 import { updateOrderStatus } from '../../service/orderService';
 import { useAdminAuthStore } from '../../store/adminAuthStore';
+import { useToast } from '../../hooks/useToast';
 import { formatCurrency } from '../../utils/format';
 
 const ORDER_STATUSES = [
@@ -20,7 +21,7 @@ function OrderStatusBadge({ status }) {
   );
 }
 
-function OrderCard({ order, onStatusChange, isUpdating }) {
+function OrderCard({ order, onStatusChange, isUpdating, onViewDetails }) {
   const isCompleted = order.status === 'COMPLETED';
   const isCanceled = order.status === 'CANCELED';
 
@@ -28,6 +29,9 @@ function OrderCard({ order, onStatusChange, isUpdating }) {
     if (newStatus === order.status) return;
     await onStatusChange(order.id, newStatus);
   };
+
+  // Calcular quantidade total de itens
+  const totalItems = order.totalItems || 0;
 
   const getActionButtons = () => {
     if (isCompleted || isCanceled) return [];
@@ -46,12 +50,12 @@ function OrderCard({ order, onStatusChange, isUpdating }) {
   const actionButtons = getActionButtons();
 
   return (
-    <div className="rounded-xl border-2 border-slate-200 bg-white hover:shadow-lg transition overflow-hidden">
+    <div className="rounded-xl border-2 border-slate-200 bg-white hover:shadow-lg transition overflow-hidden cursor-pointer group" onClick={() => onViewDetails(order.id)}>
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h3 className="text-lg font-bold text-slate-900">Pedido #{order.id}</h3>
+              <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition">Pedido #{order.id}</h3>
               <OrderStatusBadge status={order.status} />
             </div>
 
@@ -86,7 +90,7 @@ function OrderCard({ order, onStatusChange, isUpdating }) {
                 <Package className="h-4 w-4 text-slate-400" />
                 <div>
                   <p className="text-xs text-slate-500">Itens</p>
-                  <p className="font-semibold text-slate-900">{order.items?.length || 0}</p>
+                  <p className="font-semibold text-slate-900">{totalItems}</p>
                 </div>
               </div>
             </div>
@@ -107,13 +111,16 @@ function OrderCard({ order, onStatusChange, isUpdating }) {
             )}
           </div>
 
-          <div className="flex flex-col gap-2 min-w-[100px]">
+          <div className="flex flex-col gap-2 min-w-[100px]" onClick={(e) => e.stopPropagation()}>
             {actionButtons.map((btn) => {
               const ButtonIcon = btn.icon;
               return (
                 <button
                   key={btn.status}
-                  onClick={() => handleStatusChange(btn.status)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStatusChange(btn.status);
+                  }}
                   disabled={isUpdating}
                   className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-white transition ${btn.color} disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
@@ -144,6 +151,7 @@ export default function AdminOrdersPage() {
   const navigate = useNavigate();
   const accessToken = useAdminAuthStore((state) => state.accessToken);
   const clearSession = useAdminAuthStore((state) => state.clearSession);
+  const { success: toastSuccess, error: toastError } = useToast();
 
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -191,7 +199,7 @@ export default function AdminOrdersPage() {
 
   // Filtros aplicados
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
+    const filtered = orders.filter((order) => {
       const matchesSearch = order.id.toString().includes(searchTerm) || searchTerm === '';
       const matchesStatus = statusFilter === '' || order.status === statusFilter;
 
@@ -212,6 +220,26 @@ export default function AdminOrdersPage() {
 
       return matchesSearch && matchesStatus && matchesDate && matchesCustomer;
     });
+
+    // Ordenar pedidos: em andamento (CREATED, SENT) primeiro, depois concluídos (COMPLETED, CANCELED)
+    const statusOrder = {
+      CREATED: 0,
+      SENT: 1,
+      COMPLETED: 2,
+      CANCELED: 3,
+    };
+
+    return filtered.sort((a, b) => {
+      const orderA = statusOrder[a.status] ?? 4;
+      const orderB = statusOrder[b.status] ?? 4;
+
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+
+      // Se mesmo status, ordenar por data (mais recentes primeiro)
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
   }, [orders, searchTerm, statusFilter, dateFromFilter, dateToFilter, customerFilter]);
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -222,9 +250,11 @@ export default function AdminOrdersPage() {
       await updateOrderStatus(orderId, newStatus, accessToken);
       // Atualizar ordem local
       setOrders((prevOrders) => prevOrders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+      toastSuccess(`Pedido #${orderId} atualizado para ${newStatus}`);
     } catch (err) {
       const errorMsg = err?.response?.data?.error || 'Erro ao atualizar status.';
       setError(errorMsg);
+      toastError(errorMsg);
       console.error('Erro ao atualizar pedido:', err);
     } finally {
       setUpdatingOrderId(null);
@@ -237,6 +267,10 @@ export default function AdminOrdersPage() {
     setCustomerFilter('');
     setDateFromFilter('');
     setDateToFilter('');
+  };
+
+  const handleViewDetails = (orderId) => {
+    navigate(`/admin/orders/${orderId}`);
   };
 
   const hasActiveFilters = searchTerm || statusFilter || customerFilter || dateFromFilter || dateToFilter;
@@ -350,7 +384,7 @@ export default function AdminOrdersPage() {
             <span className="font-semibold">{orders.length}</span> pedidos
           </div>
           {filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} onStatusChange={handleStatusChange} isUpdating={updatingOrderId === order.id} />
+            <OrderCard key={order.id} order={order} onStatusChange={handleStatusChange} isUpdating={updatingOrderId === order.id} onViewDetails={handleViewDetails} />
           ))}
         </section>
       )}

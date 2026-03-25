@@ -14,6 +14,7 @@ import MyOrdersPage from './pages/orders/MyOrdersPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
+import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 
 export default function App() {
   const location = useLocation();
@@ -76,6 +77,14 @@ export default function App() {
             element={
               <RequireAdminAuth>
                 <AdminOrdersPage />
+              </RequireAdminAuth>
+            }
+          />
+          <Route
+            path="/admin/orders/:orderId"
+            element={
+              <RequireAdminAuth>
+                <AdminOrderDetailPage />
               </RequireAdminAuth>
             }
           />

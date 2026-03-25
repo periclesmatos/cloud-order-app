@@ -54,6 +54,16 @@ export async function getAllOrders(accessToken) {
   return response.data;
 }
 
+export async function getOrderById(orderId, accessToken) {
+  const response = await apiClient.get(`/orders/${orderId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return response.data;
+}
+
 export async function updateOrderStatus(orderId, status, accessToken) {
   const response = await apiClient.patch(
     `/orders/${orderId}/status`,

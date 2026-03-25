@@ -12,7 +12,7 @@ function StatCard({ icon: Icon, label, value, trend = null, gradient = 'from-blu
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
           <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
-          <p className="text-2xl font-bold text-slate-900">{value}</p>
+          <p className="text-lg font-bold text-slate-900">{value}</p>
           {trend && (
             <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
               <TrendingUp className="h-3 w-3" />
@@ -253,8 +253,7 @@ export default function AdminDashboard() {
               <ChevronDown className={`h-4 w-4 transition-transform ${showQuickPeriod ? 'rotate-180' : ''}`} />
             </button>
             {showQuickPeriod && (
-              <div className="absolute right-0 mt-2 bg-white border-2 border-blue-200 rounded-lg shadow-xl z-10 w-48"
->
+              <div className="absolute right-0 mt-2 bg-white border-2 border-blue-200 rounded-lg shadow-xl z-10 w-48">
                 <button
                   onClick={() => handleQuickPeriod('today')}
                   className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-700 font-medium border-b border-slate-100 transition"
@@ -288,12 +287,7 @@ export default function AdminDashboard() {
           <div className="text-sm text-slate-500">até</div>
           <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-3 py-2">
             <Calendar className="h-4 w-4 text-slate-500" />
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="text-sm border-none outline-none"
-            />
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="text-sm border-none outline-none" />
           </div>
           {(dateFrom || dateTo) && (
             <button
@@ -319,9 +313,9 @@ export default function AdminDashboard() {
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <StatCard icon={Package} label="Total de Pedidos" value={stats.totalOrders} gradient="from-blue-500 to-blue-600" />
         <StatCard icon={CheckCircle2} label="Concluídos" value={stats.completedOrders} gradient="from-emerald-500 to-emerald-600" />
-        <StatCard icon={TrendingUp} label="Receita" value={formatCurrency(stats.totalRevenue)} gradient="from-amber-500 to-amber-600" />
         <StatCard icon={ShoppingCart} label="Produtos" value={stats.totalProducts} gradient="from-purple-500 to-purple-600" />
         <StatCard icon={Users} label="Clientes" value={stats.totalCustomers} gradient="from-pink-500 to-pink-600" />
+        <StatCard icon={TrendingUp} label="Receita" value={formatCurrency(stats.totalRevenue)} gradient="from-amber-500 to-amber-600" />
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
