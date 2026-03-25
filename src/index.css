@@ -43,3 +43,42 @@
     @apply text-2xl font-bold text-slate-900 md:text-3xl;
   }
 }
+
+@layer utilities {
+  /* Customização do Sonner Toast */
+  :root {
+    --toast-bg: #ffffff;
+    --toast-text: #1e293b;
+    --toast-border: #e2e8f0;
+  }
+
+  [data-theme='dark'] {
+    --toast-bg: #1e293b;
+    --toast-text: #f1f5f9;
+    --toast-border: #334155;
+  }
+
+  /* Estilo dos toasts */
+  :global([data-sonner-toast]) {
+    @apply rounded-2xl border shadow-lg;
+    background-color: var(--toast-bg);
+    color: var(--toast-text);
+    border-color: var(--toast-border);
+  }
+
+  :global([data-sonner-toast][data-type='success']) {
+    @apply border-emerald-200 bg-emerald-50;
+  }
+
+  :global([data-sonner-toast][data-type='error']) {
+    @apply border-red-200 bg-red-50;
+  }
+
+  :global([data-sonner-toast][data-type='info']) {
+    @apply border-blue-200 bg-blue-50;
+  }
+
+  :global([data-sonner-toast][data-type='loading']) {
+    @apply border-amber-200 bg-amber-50;
+  }
+}

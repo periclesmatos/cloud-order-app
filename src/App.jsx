@@ -1,4 +1,5 @@
 import { Route, Routes, useLocation } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import RequireCustomerAuth from './components/RequireCustomerAuth';
 import RequireAdminAuth from './components/RequireAdminAuth';
 import Navbar from './components/Navbar';
@@ -71,6 +72,7 @@ export default function App() {
           />
         </Routes>
       </main>
+      <Toaster position="top-right" richColors expand visibleToasts={5} />
     </div>
   );
 }
