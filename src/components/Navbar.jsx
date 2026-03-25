@@ -104,17 +104,33 @@ export default function Navbar() {
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 min-w-fit">
           {isAuthenticated && user ? (
             <>
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="btn-primary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap"
+              >
+                <span className="hidden md:inline">Home</span>
+                <span className="md:hidden">🏠</span>
+              </button>
               <div className="hidden rounded-2xl bg-slate-100 px-2 py-1 sm:px-3 sm:py-2 text-right md:block">
                 <p className="text-xs sm:text-sm font-semibold text-slate-900">{user.name}</p>
                 <p className="text-[10px] text-slate-500">{user.phone?.slice(-4)}</p>
               </div>
-              <button type="button" onClick={handleAdminLogout} className="btn-secondary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap">
+              <button
+                type="button"
+                onClick={handleAdminLogout}
+                className="btn-secondary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap"
+              >
                 Sair
               </button>
             </>
           ) : (
             !isAdminRoute && (
-              <button type="button" onClick={handleAdminClick} className="btn-primary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap">
+              <button
+                type="button"
+                onClick={handleAdminClick}
+                className="btn-primary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap"
+              >
                 <span className="hidden md:inline">Painel Admin</span>
                 <span className="md:hidden">👨‍💼</span>
               </button>
