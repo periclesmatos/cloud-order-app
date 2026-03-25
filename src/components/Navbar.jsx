@@ -111,7 +111,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleAdminLogout}
-                className="btn-secondary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap"
+                className="btn-secondary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap cursor-pointer"
               >
                 Sair
               </button>

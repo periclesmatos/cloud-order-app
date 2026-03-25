@@ -68,7 +68,7 @@ export default function AdminNavbar() {
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center gap-1 rounded-lg border border-red-300 bg-red-50 px-2 py-1.5 sm:px-3 text-[10px] sm:text-xs font-semibold text-red-700 transition hover:bg-red-100 hover:border-red-400 flex-shrink-0"
+            className="inline-flex items-center gap-1 rounded-lg border border-red-300 bg-red-50 px-2 py-1.5 sm:px-3 text-[10px] sm:text-xs font-semibold text-red-700 transition hover:bg-red-100 hover:border-red-400 flex-shrink-0 cursor-pointer"
             title="Logout"
           >
             <LogOut className="h-3 w-3" />
