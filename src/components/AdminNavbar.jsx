@@ -13,7 +13,7 @@ export default function AdminNavbar() {
   };
 
   const navClassName = ({ isActive }) =>
-    `rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 lg:px-3 lg:py-2 text-[11px] sm:text-xs lg:text-sm font-medium transition whitespace-nowrap ${
+    `rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 lg:px-3 lg:py-2 text-[11px] sm:text-xs lg:text-sm font-medium transition whitespace-nowrap cursor-pointer ${
       isActive ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
     }`;
 
@@ -32,8 +32,8 @@ export default function AdminNavbar() {
           </div>
         </Link>
 
-        {/* Navigation */}
-        <nav className="flex items-center gap-0.5 sm:gap-1 min-w-fit flex-shrink">
+        {/* Navigation - Centered */}
+        <nav className="flex items-center gap-0.5 sm:gap-1 min-w-fit flex-shrink justify-center">
           <NavLink to="/admin" end className={navClassName} title="Dashboard">
             <span className="hidden md:inline text-xs">Dashboard</span>
             <span className="md:hidden">📊</span>
