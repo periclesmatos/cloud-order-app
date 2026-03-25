@@ -9,6 +9,7 @@ Este documento detalha a implementação de segurança para a rota autenticada `
 ## 🚨 Problema de Segurança Identificado
 
 ### Antes ❌
+
 ```javascript
 // ⚠️ INSEGURO: Qualquer pessoa poderia acessar dados de outro cliente
 export async function getCustomerByPhone(phone) {
@@ -21,12 +22,14 @@ const customer = await getCustomerByPhone(customer.phone); // Sem token!
 ```
 
 **Por que é grave?**
+
 - Rota **pública** (sem `Authorization: Bearer`)
 - Alguém sabendo o telefone poderia fazer requisição e obter dados
 - Viola LGPD/GDPR (Lei Geral de Proteção de Dados)
 - Risco: endereços, email, histórico de pedidos expostos
 
 ### Depois ✅
+
 ```javascript
 // ✅ SEGURO: Apenas cliente autenticado acessa seus dados
 export async function getMe(accessToken) {
@@ -61,6 +64,7 @@ export async function getMe(accessToken) {
 ```
 
 **Benefícios:**
+
 - ✅ Requer token válido
 - ✅ Servidor valida propriedade dos dados
 - ✅ Cliente recebe dados reais, não cópia local
@@ -70,18 +74,21 @@ export async function getMe(accessToken) {
 ### 2. **`src/pages/auth/CustomerAuthPage.jsx`** - Login seguro
 
 **Antes:**
+
 ```javascript
 const auth = await loginCustomerByPhone(normalizedPhone);
 const customer = await getCustomerByPhone(normalizedPhone); // ❌ Público!
 ```
 
 **Depois:**
+
 ```javascript
 const auth = await loginCustomerByPhone(normalizedPhone);
 const customer = await getMe(auth?.accessToken); // ✅ Autenticado!
 ```
 
 **Mudanças:**
+
 - Importa `getMe` em vez de `getCustomerByPhone`
 - Passa `accessToken` do servidor para validação
 - Token vem do backend, não pode ser falsificado
@@ -91,6 +98,7 @@ const customer = await getMe(auth?.accessToken); // ✅ Autenticado!
 ### 3. **`src/pages/checkout/CheckoutPage.jsx`** - Refresh seguro
 
 **Antes:**
+
 ```javascript
 async function refreshCustomer() {
   if (!customer?.phone) return;
@@ -100,6 +108,7 @@ async function refreshCustomer() {
 ```
 
 **Depois:**
+
 ```javascript
 async function refreshCustomer() {
   if (!accessToken) return; // Valida token primeiro
@@ -114,6 +123,7 @@ async function refreshCustomer() {
 ```
 
 **Melhorias:**
+
 - Valida token antes de fazer requisição
 - Usa try/catch para tratar erros
 - Feedback de erro ao usuário
@@ -163,6 +173,7 @@ export function useValidateMe(shouldValidate = false, interval = 0) {
 ```
 
 **Funcionamento:**
+
 1. Valida token na montagem do componente
 2. Se token inválido (401/403), limpa sessão automaticamente
 3. Pode revalidar periodicamente (ex: a cada 5 min)
@@ -173,6 +184,7 @@ export function useValidateMe(shouldValidate = false, interval = 0) {
 ### 5. **`src/pages/orders/MyOrdersPage.jsx`** - Integração do Hook
 
 **Adição:**
+
 ```javascript
 import { useValidateMe } from '../../hooks/useValidateMe';
 
@@ -250,7 +262,7 @@ useValidateMe(true, 300000);
 ```javascript
 async function refreshCustomer() {
   if (!accessToken) return;
-  
+
   try {
     const customer = await getMe(accessToken);
     setCustomer(customer);
@@ -284,23 +296,26 @@ async function refreshCustomer() {
 Para verificar que está seguro:
 
 1. **Login com Cliente A**
+
    ```
    Acesso: ✅ Seus pedidos aparecem
    ```
 
 2. **Abrir DevTools → Application → sessionStorage**
+
    ```
    Veja o token JWT armazenado
    ```
 
 3. **Copiar token de outro cliente** (simular ataque)
+
    ```
    // No DevTools Console:
    const badToken = "token_de_outro_cliente";
    fetch('http://localhost:3000/customers/me', {
      headers: { 'Authorization': `Bearer ${badToken}` }
    });
-   
+
    Resultado: ❌ 403 Forbidden
    Backend recusou acesso
    ```
@@ -315,14 +330,14 @@ Para verificar que está seguro:
 
 ## 📊 Resumo de Impacto
 
-| Aspecto | Antes | Depois |
-|---------|-------|--------|
-| **Autenticação** | Pública | Bearer JWT |
-| **Validação Servidor** | ❌ Nenhuma | ✅ Obrigatória |
-| **Risco de Vazamento** | 🔴 Alto | 🟢 Baixo |
-| **Token Expirado** | ❌ Usuário vê erro | ✅ Logout automático |
-| **Sincronização** | Manual | Automática (hook) |
-| **LGPD/GDPR** | ❌ Não compliant | ✅ Compliant |
+| Aspecto                | Antes              | Depois               |
+| ---------------------- | ------------------ | -------------------- |
+| **Autenticação**       | Pública            | Bearer JWT           |
+| **Validação Servidor** | ❌ Nenhuma         | ✅ Obrigatória       |
+| **Risco de Vazamento** | 🔴 Alto            | 🟢 Baixo             |
+| **Token Expirado**     | ❌ Usuário vê erro | ✅ Logout automático |
+| **Sincronização**      | Manual             | Automática (hook)    |
+| **LGPD/GDPR**          | ❌ Não compliant   | ✅ Compliant         |
 
 ---
 
