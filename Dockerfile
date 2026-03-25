@@ -2,6 +2,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+ARG VITE_API_URL
+ARG VITE_API_TIMEOUT=10000
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_API_TIMEOUT=$VITE_API_TIMEOUT
+
 # Copiar package.json e package-lock.json
 COPY package*.json ./
 
