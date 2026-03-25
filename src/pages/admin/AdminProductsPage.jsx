@@ -183,7 +183,11 @@ export default function AdminProductsPage() {
 
   const filteredProducts = useMemo(() => {
     const query = searchText.trim().toLowerCase();
-    return products.filter((p) => !query || p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+    return products.filter((p) => 
+      !query || 
+      (p?.name && p.name.toLowerCase().includes(query)) || 
+      (p?.description && p.description.toLowerCase().includes(query))
+    );
   }, [products, searchText]);
 
   const handleAddProduct = () => {
