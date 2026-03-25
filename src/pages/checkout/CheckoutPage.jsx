@@ -7,7 +7,7 @@ import { createOrder } from '../../service/orderService';
 import {
   createCustomerAddress,
   deleteCustomerAddress,
-  getCustomerByPhone,
+  getMe,
   updateCustomerAddress,
   updateCustomerById,
 } from '../../service/customerAuthService';
@@ -112,12 +112,17 @@ export default function CheckoutPage() {
   }, [addresses, selectedAddressId]);
 
   async function refreshCustomer() {
-    if (!customer?.phone) {
+    if (!accessToken) {
       return;
     }
 
-    const nextCustomer = await getCustomerByPhone(customer.phone);
-    setCustomer(nextCustomer);
+    try {
+      const nextCustomer = await getMe(accessToken);
+      setCustomer(nextCustomer);
+    } catch (err) {
+      setActionError('Erro ao atualizar dados do cliente.');
+      console.error('Erro ao chamar getMe:', err);
+    }
   }
 
   async function handleSaveCustomer() {

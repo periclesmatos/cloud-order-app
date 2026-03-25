@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import EmptyState from '../home/components/EmptyState';
 import { cancelOrder, getCustomerOrders } from '../../service/orderService';
 import { useCustomerAuthStore } from '../../store/customerAuthStore';
+import { useValidateMe } from '../../hooks/useValidateMe';
 import { ORDER_STATUS_OPTIONS } from '../../utils/orderStatus';
 import OrderCard from './components/OrderCard';
 
@@ -27,6 +28,10 @@ function canCancel(status) {
 export default function MyOrdersPage() {
   const customer = useCustomerAuthStore((state) => state.customer);
   const accessToken = useCustomerAuthStore((state) => state.accessToken);
+
+  // ✅ Valida dados do cliente com servidor na montagem
+  // Se token estiver inválido, limpa sessão automaticamente
+  useValidateMe(true);
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);

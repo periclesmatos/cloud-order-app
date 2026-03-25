@@ -52,3 +52,13 @@ export async function deleteCustomerAddress(customerId, addressId, accessToken) 
     },
   });
 }
+
+export async function getMe(accessToken) {
+  const response = await apiClient.get('/customers/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return response.data;
+}

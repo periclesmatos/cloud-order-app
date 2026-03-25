@@ -76,9 +76,6 @@ export default function Navbar() {
               <NavLink to="/admin/products" className={navClassName}>
                 Produtos
               </NavLink>
-              <NavLink to="/admin/orders" className={navClassName}>
-                Pedidos
-              </NavLink>
             </>
           ) : (
             <>

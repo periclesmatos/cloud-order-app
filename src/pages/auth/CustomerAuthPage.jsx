@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { createCustomer, getCustomerByPhone, loginCustomerByPhone } from '../../service/customerAuthService';
+import { createCustomer, getMe, loginCustomerByPhone } from '../../service/customerAuthService';
 import { useCustomerAuthStore } from '../../store/customerAuthStore';
 
 function getDigits(phone) {
@@ -90,7 +90,7 @@ export default function CustomerAuthPage() {
     try {
       if (!needsRegistration) {
         const auth = await loginCustomerByPhone(normalizedPhone);
-        const customer = await getCustomerByPhone(normalizedPhone);
+        const customer = await getMe(auth?.accessToken);
 
         setSession({
           customer,
@@ -108,7 +108,7 @@ export default function CustomerAuthPage() {
       });
 
       const auth = await loginCustomerByPhone(normalizedPhone);
-      const customer = await getCustomerByPhone(normalizedPhone);
+      const customer = await getMe(auth?.accessToken);
 
       setSession({
         customer,
