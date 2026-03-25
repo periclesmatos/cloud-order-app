@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerAdmin, loginAdmin, getAdminMe } from '../../../service/adminAuthService';
 import { useAdminAuthStore } from '../../../store/adminAuthStore';
+import { useToast } from '../../../hooks/useToast';
 
 export default function AdminRegisterPage() {
   const navigate = useNavigate();
   const setSession = useAdminAuthStore((state) => state.setSession);
   const isAuthenticated = useAdminAuthStore((state) => state.isAuthenticated);
+  const { success, error: toastError, loading: toastLoading } = useToast();
 
   // Redirecionar para dashboard se já estiver logado
   useEffect(() => {
@@ -28,17 +30,23 @@ export default function AdminRegisterPage() {
 
     const missingFields = !name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim();
     if (missingFields) {
-      setError('Preencha todos os campos para continuar.');
+      const msg = 'Preencha todos os campos para continuar.';
+      setError(msg);
+      toastError(msg);
       return;
     }
 
     if (password.length < 6) {
-      setError('Senha deve ter no minimo 6 caracteres.');
+      const msg = 'Senha deve ter no mínimo 6 caracteres.';
+      setError(msg);
+      toastError(msg);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('As senhas nao conferem.');
+      const msg = 'As senhas não conferem.';
+      setError(msg);
+      toastError(msg);
       return;
     }
 
@@ -64,10 +72,12 @@ export default function AdminRegisterPage() {
         accessToken: auth?.accessToken,
       });
 
+      success(`Bem-vindo, ${user?.name}! Conta criada com sucesso! 🎉`);
       navigate('/admin', { replace: true });
     } catch (err) {
-      const apiError = err?.response?.data?.error;
-      setError(apiError || 'Erro ao registrar. Email pode ja estar cadastrado.');
+      const apiError = err?.response?.data?.error || 'Erro ao registrar. Email pode já estar cadastrado.';
+      setError(apiError);
+      toastError(apiError);
     } finally {
       setIsLoading(false);
     }

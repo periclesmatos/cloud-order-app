@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginAdmin, getAdminMe } from '../../../service/adminAuthService';
 import { useAdminAuthStore } from '../../../store/adminAuthStore';
+import { useToast } from '../../../hooks/useToast';
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const setSession = useAdminAuthStore((state) => state.setSession);
   const isAuthenticated = useAdminAuthStore((state) => state.isAuthenticated);
+  const { success, error: toastError, loading: toastLoading } = useToast();
 
   // Redirecionar para dashboard se já estiver logado
   useEffect(() => {
@@ -28,7 +30,9 @@ export default function AdminLoginPage() {
     setError('');
 
     if (!email.trim() || !password.trim()) {
-      setError('Preencha email e senha para continuar.');
+      const msg = 'Preencha email e senha para continuar.';
+      setError(msg);
+      toastError(msg);
       return;
     }
 
@@ -47,10 +51,12 @@ export default function AdminLoginPage() {
         accessToken: auth?.accessToken,
       });
 
+      success(`Bem-vindo, ${user?.name}! 🔐`);
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      const apiError = err?.response?.data?.error;
-      setError(apiError || 'Email ou senha invalidos.');
+      const apiError = err?.response?.data?.error || 'Email ou senha inválidos.';
+      setError(apiError);
+      toastError(apiError);
     } finally {
       setIsLoading(false);
     }
