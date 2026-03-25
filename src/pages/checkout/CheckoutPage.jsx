@@ -14,6 +14,7 @@ import {
 import { useCustomerAuthStore } from '../../store/customerAuthStore';
 import { useOrderStore } from '../../store/orderStore';
 import { useProductStore } from '../../store/productStore';
+import { useToast } from '../../hooks/useToast';
 
 const EMPTY_ADDRESS_FORM = {
   street: '',
@@ -74,6 +75,7 @@ export default function CheckoutPage() {
   const accessToken = useCustomerAuthStore((state) => state.accessToken);
   const setCustomer = useCustomerAuthStore((state) => state.setCustomer);
   const setLastOrder = useOrderStore((state) => state.setLastOrder);
+  const { success, error: toastError, loading: toastLoading } = useToast();
 
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
@@ -144,8 +146,11 @@ export default function CheckoutPage() {
       );
       await refreshCustomer();
       setIsEditingCustomer(false);
+      success('Dados atualizados com sucesso! ✅');
     } catch (err) {
-      setActionError(err?.response?.data?.error || 'Nao foi possivel atualizar os dados do cliente.');
+      const errorMessage = err?.response?.data?.error || 'Não foi possível atualizar os dados do cliente.';
+      setActionError(errorMessage);
+      toastError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -198,8 +203,10 @@ export default function CheckoutPage() {
     try {
       if (editingAddressId) {
         await updateCustomerAddress(customer.id, editingAddressId, payload, accessToken);
+        success('Endereço atualizado com sucesso! 📍');
       } else {
         await createCustomerAddress(customer.id, payload, accessToken);
+        success('Endereço adicionado com sucesso! 📍');
       }
 
       await refreshCustomer();
@@ -207,7 +214,9 @@ export default function CheckoutPage() {
       setEditingAddressId('');
       setAddressForm(EMPTY_ADDRESS_FORM);
     } catch (err) {
-      setActionError(err?.response?.data?.error || 'Nao foi possivel salvar o endereco.');
+      const errorMessage = err?.response?.data?.error || 'Não foi possível salvar o endereço.';
+      setActionError(errorMessage);
+      toastError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -218,7 +227,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    const shouldDelete = window.confirm('Deseja realmente excluir este endereco?');
+    const shouldDelete = window.confirm('Deseja realmente excluir este endereço?');
     if (!shouldDelete) {
       return;
     }
@@ -229,8 +238,11 @@ export default function CheckoutPage() {
     try {
       await deleteCustomerAddress(customer.id, addressId, accessToken);
       await refreshCustomer();
+      success('Endereço deletado com sucesso! 🗑️');
     } catch (err) {
-      setActionError(err?.response?.data?.error || 'Nao foi possivel excluir o endereco.');
+      const errorMessage = err?.response?.data?.error || 'Não foi possível excluir o endereço.';
+      setActionError(errorMessage);
+      toastError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -271,9 +283,12 @@ export default function CheckoutPage() {
 
       setLastOrder(normalizedOrder);
       clearCart();
+      success('Pedido realizado com sucesso! 🎉 Redirecionando...');
       navigate('/checkout/success');
     } catch (err) {
-      setActionError(err?.response?.data?.error || 'Nao foi possivel finalizar o pedido.');
+      const errorMessage = err?.response?.data?.error || 'Não foi possível finalizar o pedido.';
+      setActionError(errorMessage);
+      toastError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
