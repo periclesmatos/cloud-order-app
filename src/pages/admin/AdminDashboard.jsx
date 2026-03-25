@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, CheckCircle2, TrendingUp, ShoppingCart, Users, AlertTriangle, LogOut } from 'lucide-react';
+import { Package, CheckCircle2, TrendingUp, ShoppingCart, Users, AlertTriangle } from 'lucide-react';
 import { getDashboardStats } from '../../service/dashboardService';
 import { useAdminAuthStore } from '../../store/adminAuthStore';
 import { formatCurrency } from '../../utils/format';
@@ -250,20 +250,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <section className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-600">Painel Administrativo</p>
-          <h1 className="section-title mt-2">Dashboard</h1>
-          <p className="mt-2 text-sm text-slate-600">Bem-vindo, <span className="font-semibold text-slate-900">{user?.name || 'Administrador'}</span>!</p>
-        </div>
-        <button 
-          type="button" 
-          onClick={handleLogout} 
-          className="inline-flex items-center gap-2 rounded-2xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 hover:border-red-400"
-        >
-          <LogOut className="h-4 w-4" />
-          Sair
-        </button>
+      <section>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-600">Painel Administrativo</p>
+        <h1 className="section-title mt-2">Dashboard</h1>
+        <p className="mt-2 text-sm text-slate-600">Bem-vindo, <span className="font-semibold text-slate-900">{user?.name || 'Administrador'}</span>!</p>
       </section>
 
       {error && (

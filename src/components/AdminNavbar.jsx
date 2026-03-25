@@ -1,8 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 import { useAdminAuthStore } from '../store/adminAuthStore';
 
 export default function AdminNavbar() {
+  const navigate = useNavigate();
   const user = useAdminAuthStore((state) => state.user);
+  const clearSession = useAdminAuthStore((state) => state.clearSession);
+
+  const handleLogout = () => {
+    clearSession();
+    navigate('/admin/login', { replace: true });
+  };
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
@@ -36,6 +44,15 @@ export default function AdminNavbar() {
             <p className="text-xs text-slate-500">Admin</p>
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="inline-flex items-center gap-2 rounded-2xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 hover:border-red-400"
+        >
+          <LogOut className="h-4 w-4" />
+          Sair
+        </button>
       </div>
     </header>
   );
