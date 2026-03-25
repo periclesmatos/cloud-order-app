@@ -21,6 +21,15 @@ function StatCard({ icon, label, value, trend = null }) {
 }
 
 function OrderStatusChart({ orders }) {
+  if (!orders.length) {
+    return (
+      <article className="card p-6">
+        <h3 className="font-bold text-slate-900">Pedidos por Status</h3>
+        <p className="mt-4 text-sm text-slate-500">Nenhum pedido encontrado.</p>
+      </article>
+    );
+  }
+
   const statusCounts = useMemo(() => {
     const counts = {
       CREATED: 0,
@@ -49,17 +58,20 @@ function OrderStatusChart({ orders }) {
     <article className="card p-6">
       <h3 className="font-bold text-slate-900">Pedidos por Status</h3>
       <div className="mt-6 space-y-3">
-        {Object.entries(statusCounts).map(([status, count]) => (
-          <div key={status} className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusColors[status]}`}>
-                {getOrderStatusLabel(status)}
-              </span>
-              <span className="text-sm text-slate-600">{count} pedido{count !== 1 ? 's' : ''}</span>
+        {Object.entries(statusCounts).map(([status, count]) => {
+          const percentage = orders.length > 0 ? Math.round((count / orders.length) * 100) : 0;
+          return (
+            <div key={status} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusColors[status]}`}>
+                  {getOrderStatusLabel(status)}
+                </span>
+                <span className="text-sm text-slate-600">{count} pedido{count !== 1 ? 's' : ''}</span>
+              </div>
+              <span className="font-bold text-slate-900">{percentage}%</span>
             </div>
-            <span className="font-bold text-slate-900">{Math.round((count / orders.length) * 100)}%</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </article>
   );
@@ -119,13 +131,16 @@ export default function AdminDashboard() {
         setData(stats);
       } catch (err) {
         const status = err?.response?.status;
+        const errorMsg = err?.response?.data?.error || 'Erro ao carregar dados da dashboard.';
+        
         if (status === 401 || status === 403) {
           clearSession();
           navigate('/admin/login');
           return;
         }
-        setError('Erro ao carregar dados da dashboard.');
-        console.error(err);
+        
+        setError(errorMsg);
+        console.error('Erro ao carregar dashboard:', status, err?.response?.data);
       } finally {
         setLoading(false);
       }
@@ -135,14 +150,14 @@ export default function AdminDashboard() {
   }, [accessToken, clearSession, navigate]);
 
   const stats = useMemo(() => {
-    const totalOrders = data.orders.length;
-    const completedOrders = data.orders.filter((o) => o.status === 'COMPLETED').length;
+    const totalOrders = data.orders.length || 0;
+    const completedOrders = data.orders.filter((o) => o.status === 'COMPLETED').length || 0;
     const totalRevenue = data.orders
       .filter((o) => o.status === 'COMPLETED')
       .reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
-    const totalProducts = data.products.filter((p) => p.isActive).length;
-    const totalCustomers = data.customers.length;
-    const lowStockCount = data.products.filter((p) => Number(p.amount) <= 5).length;
+    const totalProducts = data.products.filter((p) => p.isActive).length || 0;
+    const totalCustomers = data.customers.length || 0;
+    const lowStockCount = data.products.filter((p) => Number(p.amount) <= 5).length || 0;
 
     return {
       totalOrders,
