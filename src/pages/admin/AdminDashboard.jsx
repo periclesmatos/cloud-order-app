@@ -6,7 +6,7 @@ import { useAdminAuthStore } from '../../store/adminAuthStore';
 import { formatCurrency } from '../../utils/format';
 import { getOrderStatusLabel } from '../../utils/orderStatus';
 
-function StatCard({ icon: Icon, label, value, trend = null, gradient = 'from-blue-500 to-blue-600' }) {
+function StatCard({ icon: label, value, trend = null, gradient = 'from-blue-500 to-blue-600' }) {
   return (
     <article className={`card overflow-hidden p-6 transition hover:shadow-lg`}>
       <div className="flex items-start justify-between">
@@ -29,16 +29,16 @@ function StatCard({ icon: Icon, label, value, trend = null, gradient = 'from-blu
 }
 
 function OrderStatusChart({ orders }) {
-  if (!orders.length) {
-    return (
-      <article className="card p-6">
-        <h3 className="font-bold text-slate-900">Pedidos por Status</h3>
-        <p className="mt-4 text-sm text-slate-500">Nenhum pedido encontrado.</p>
-      </article>
-    );
-  }
-
   const statusCounts = useMemo(() => {
+    if (!orders.length) {
+      return {
+        CREATED: 0,
+        SENT: 0,
+        COMPLETED: 0,
+        CANCELED: 0,
+      };
+    }
+
     const counts = {
       CREATED: 0,
       SENT: 0,
@@ -47,7 +47,7 @@ function OrderStatusChart({ orders }) {
     };
 
     orders.forEach((order) => {
-      if (counts.hasOwnProperty(order.status)) {
+      if (Object.hasOwn(counts, order.status)) {
         counts[order.status]++;
       }
     });
@@ -68,6 +68,15 @@ function OrderStatusChart({ orders }) {
     COMPLETED: 'bg-emerald-50 text-emerald-700',
     CANCELED: 'bg-rose-50 text-rose-700',
   };
+
+  if (!orders.length) {
+    return (
+      <article className="card p-6">
+        <h3 className="font-bold text-slate-900">Pedidos por Status</h3>
+        <p className="mt-4 text-sm text-slate-500">Nenhum pedido encontrado.</p>
+      </article>
+    );
+  }
 
   return (
     <article className="card p-6">
@@ -119,7 +128,7 @@ function LowStockProducts({ products }) {
     <article className="card p-6">
       <h3 className="text-lg font-bold text-slate-900">Produtos com Estoque Baixo (≤ 5 unidades)</h3>
       <div className="mt-6 space-y-2">
-        {lowStockItems.slice(0, 5).map((product, index) => {
+        {lowStockItems.slice(0, 5).map((product) => {
           const stock = Number(product.amount);
           const isVeryLow = stock <= 2;
           return (
@@ -229,11 +238,6 @@ export default function AdminDashboard() {
       lowStockCount,
     };
   }, [getFilteredOrders, data.products, data.customers]);
-
-  const handleLogout = () => {
-    clearSession();
-    navigate('/admin/login');
-  };
 
   if (loading) {
     return (
