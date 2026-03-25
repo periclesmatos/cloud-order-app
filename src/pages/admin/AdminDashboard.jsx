@@ -6,7 +6,7 @@ import { useAdminAuthStore } from '../../store/adminAuthStore';
 import { formatCurrency } from '../../utils/format';
 import { getOrderStatusLabel } from '../../utils/orderStatus';
 
-function StatCard({ icon: label, value, trend = null, gradient = 'from-blue-500 to-blue-600' }) {
+function StatCard({ icon: Icon, label, value, trend = null, gradient = 'from-blue-500 to-blue-600' }) {
   return (
     <article className={`card overflow-hidden p-6 transition hover:shadow-lg`}>
       <div className="flex items-start justify-between">

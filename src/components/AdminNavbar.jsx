@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useAdminAuthStore } from '../store/adminAuthStore';
 
@@ -11,6 +11,11 @@ export default function AdminNavbar() {
     clearSession();
     navigate('/admin/login', { replace: true });
   };
+
+  const navClassName = ({ isActive }) =>
+    `rounded-full px-4 py-2 text-sm font-medium transition ${
+      isActive ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+    }`;
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
@@ -27,15 +32,15 @@ export default function AdminNavbar() {
         </Link>
 
         <nav className="ml-auto flex items-center gap-2 sm:gap-4">
-          <Link to="/admin" className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
+          <NavLink to="/admin" end className={navClassName}>
             Dashboard
-          </Link>
-          <Link to="/admin/products" className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
+          </NavLink>
+          <NavLink to="/admin/products" className={navClassName}>
             Produtos
-          </Link>
-          <Link to="/" className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
+          </NavLink>
+          <NavLink to="/" className={navClassName}>
             Faça seu pedido
-          </Link>
+          </NavLink>
         </nav>
 
         {user && (

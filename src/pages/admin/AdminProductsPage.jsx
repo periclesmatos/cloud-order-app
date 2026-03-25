@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Edit2, Plus, Check, X, Package } from 'lucide-react';
+import { Trash2, Edit2, Plus, Check, X, Package, DollarSign, Box, ToggleRight, Settings } from 'lucide-react';
 import {
   getAllProducts,
   createProduct,
@@ -332,25 +332,50 @@ export default function AdminProductsPage() {
         <section className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">Produto</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">Preço</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700">Estoque</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700">Status</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold text-slate-700">Ações</th>
+              <tr className="border-b-2 border-slate-300 bg-gradient-to-r from-slate-100 to-slate-50">
+                <th className="px-6 py-5 text-left">
+                  <div className="flex items-center gap-3">
+                    <Package className="h-5 w-5 text-slate-600" />
+                    <span className="text-sm font-bold text-slate-800 tracking-wide">PRODUTO</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5 text-left">
+                  <div className="flex items-center gap-3">
+                    <DollarSign className="h-5 w-5 text-slate-600" />
+                    <span className="text-sm font-bold text-slate-800 tracking-wide">PREÇO</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5 text-center">
+                  <div className="flex items-center justify-center gap-3">
+                    <Box className="h-5 w-5 text-slate-600" />
+                    <span className="text-sm font-bold text-slate-800 tracking-wide">ESTOQUE</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5 text-center">
+                  <div className="flex items-center justify-center gap-3">
+                    <ToggleRight className="h-5 w-5 text-slate-600" />
+                    <span className="text-sm font-bold text-slate-800 tracking-wide">STATUS</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5 text-right">
+                  <div className="flex items-center justify-end gap-3">
+                    <Settings className="h-5 w-5 text-slate-600" />
+                    <span className="text-sm font-bold text-slate-800 tracking-wide">AÇÕES</span>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {filteredProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-slate-50 transition">
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-4">
                     <div>
                       <p className="font-medium text-slate-900">{product.name}</p>
                       <p className="text-xs text-slate-500">{product.description}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-900 font-semibold">{formatCurrency(product.price)}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-4 text-slate-900 font-semibold">{formatCurrency(product.price)}</td>
+                  <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <input
                         type="number"
@@ -376,7 +401,7 @@ export default function AdminProductsPage() {
                       </button>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-4">
                     <div className="flex justify-center">
                       <button
                         type="button"
@@ -395,7 +420,7 @@ export default function AdminProductsPage() {
                       </button>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-4">
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
