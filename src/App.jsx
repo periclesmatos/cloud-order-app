@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import CustomerAuthPage from './pages/auth/CustomerAuthPage';
 import CheckoutPage from './pages/checkout/CheckoutPage';
 import HomePage from './pages/home/HomePage';
-import OrdersPage from './pages/orders/OrdersPage';
+import MyOrdersPage from './pages/orders/MyOrdersPage';
 
 export default function App() {
   return (
@@ -18,7 +18,7 @@ export default function App() {
             path="/orders"
             element={
               <RequireCustomerAuth>
-                <OrdersPage />
+                <MyOrdersPage />
               </RequireCustomerAuth>
             }
           />

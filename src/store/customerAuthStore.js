@@ -13,6 +13,12 @@ export const useCustomerAuthStore = create(
           accessToken: accessToken || null,
           isAuthenticated: Boolean(accessToken),
         }),
+      setCustomer: (customer) =>
+        set((state) => ({
+          customer: customer || null,
+          accessToken: state.accessToken,
+          isAuthenticated: Boolean(state.accessToken),
+        })),
       clearSession: () =>
         set({
           customer: null,

@@ -1,4 +1,4 @@
-export default function OrdersPage() {
+export default function MyOrdersPage() {
   return (
     <section className="card p-6">
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-600">Pedidos</p>
