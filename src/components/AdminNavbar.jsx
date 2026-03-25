@@ -33,7 +33,7 @@ export default function AdminNavbar() {
         </Link>
 
         {/* Navigation - Centered */}
-        <nav className="flex items-center gap-0.5 sm:gap-1 min-w-fit flex-shrink justify-center">
+        <nav className="flex items-center gap-0.5 sm:gap-1 justify-center">
           <NavLink to="/admin" end className={navClassName} title="Dashboard">
             <span className="hidden md:inline text-xs">Dashboard</span>
             <span className="md:hidden">📊</span>
@@ -55,12 +55,12 @@ export default function AdminNavbar() {
             onClick={() => navigate('/')}
             className="rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs font-medium transition whitespace-nowrap bg-brand-50 text-brand-700 hover:bg-brand-100 cursor-pointer"
           >
-            <span className="hidden md:inline">Home</span>
+            <span className="hidden md:inline">Voltar </span>
             <span className="md:hidden">🏠</span>
           </button>
           {user && (
             <div className="hidden rounded-lg bg-slate-100 px-2 py-1 text-right sm:flex flex-col">
-              <p className="text-xs sm:text-xs font-semibold text-slate-900 leading-tight">{user.name.split(' ')[0]}</p>
+              <p className="text-xs sm:text-xs font-semibold text-slate-900 leading-tight">{user.name}</p>
               <p className="text-[10px] text-slate-500">Admin</p>
             </div>
           )}
