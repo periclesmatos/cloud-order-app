@@ -10,6 +10,7 @@ import {
   updateProductStock,
 } from '../../service/productService';
 import { useAdminAuthStore } from '../../store/adminAuthStore';
+import { useToast } from '../../hooks/useToast';
 import { formatCurrency } from '../../utils/format';
 
 function ProductForm({ product, onSubmit, onCancel, loading }) {
@@ -143,6 +144,7 @@ export default function AdminProductsPage() {
   const navigate = useNavigate();
   const accessToken = useAdminAuthStore((state) => state.accessToken);
   const clearSession = useAdminAuthStore((state) => state.clearSession);
+  const { success, error: toastError, loading: toastLoading, dismiss } = useToast();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -183,10 +185,8 @@ export default function AdminProductsPage() {
 
   const filteredProducts = useMemo(() => {
     const query = searchText.trim().toLowerCase();
-    return products.filter((p) => 
-      !query || 
-      (p?.name && p.name.toLowerCase().includes(query)) || 
-      (p?.description && p.description.toLowerCase().includes(query))
+    return products.filter(
+      (p) => !query || (p?.name && p.name.toLowerCase().includes(query)) || (p?.description && p.description.toLowerCase().includes(query)),
     );
   }, [products, searchText]);
 
@@ -208,14 +208,18 @@ export default function AdminProductsPage() {
       if (editingProduct) {
         const updated = await updateProduct(editingProduct.id, formData, accessToken);
         setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? updated : p)));
+        success(`Produto "${formData.name}" atualizado com sucesso! ✨`);
       } else {
         const created = await createProduct(formData, accessToken);
         setProducts((prev) => [...prev, created]);
+        success(`Produto "${formData.name}" criado com sucesso! 🎉`);
       }
       setShowForm(false);
       setEditingProduct(null);
     } catch (err) {
-      setError(err?.response?.data?.error || 'Erro ao salvar produto');
+      const errorMessage = err?.response?.data?.error || 'Erro ao salvar produto';
+      setError(errorMessage);
+      toastError(errorMessage);
       console.error('Erro:', err);
     } finally {
       setFormLoading(false);
@@ -231,8 +235,11 @@ export default function AdminProductsPage() {
     try {
       await deleteProduct(productId, accessToken);
       setProducts((prev) => prev.filter((p) => p.id !== productId));
+      success('Produto deletado com sucesso! 🗑️');
     } catch (err) {
-      setError(err?.response?.data?.error || 'Erro ao deletar produto');
+      const errorMessage = err?.response?.data?.error || 'Erro ao deletar produto';
+      setError(errorMessage);
+      toastError(errorMessage);
       console.error('Erro:', err);
     } finally {
       setActionLoading('');
@@ -246,8 +253,12 @@ export default function AdminProductsPage() {
     try {
       const updated = await toggleProductStatus(productId, !currentStatus, accessToken);
       setProducts((prev) => prev.map((p) => (p.id === productId ? updated : p)));
+      const status = !currentStatus ? 'ativado' : 'desativado';
+      success(`Produto ${status} com sucesso! ✅`);
     } catch (err) {
-      setError(err?.response?.data?.error || 'Erro ao atualizar status');
+      const errorMessage = err?.response?.data?.error || 'Erro ao atualizar status';
+      setError(errorMessage);
+      toastError(errorMessage);
       console.error('Erro:', err);
     } finally {
       setActionLoading('');
@@ -258,7 +269,9 @@ export default function AdminProductsPage() {
     const amount = Number(newAmount);
 
     if (isNaN(amount) || amount < 0) {
-      setError('Estoque inválido. Digite um número válido maior ou igual a 0.');
+      const msg = 'Estoque inválido. Digite um número válido maior ou igual a 0.';
+      setError(msg);
+      toastError(msg);
       return;
     }
 
@@ -269,8 +282,11 @@ export default function AdminProductsPage() {
       const updated = await updateProductStock(productId, amount, accessToken);
       setProducts((prev) => prev.map((p) => (p.id === productId ? updated : p)));
       setStockInput((prev) => ({ ...prev, [productId]: '' }));
+      success(`Estoque atualizado para ${amount} unidades! 📦`);
     } catch (err) {
-      setError(err?.response?.data?.error || 'Erro ao atualizar estoque');
+      const errorMessage = err?.response?.data?.error || 'Erro ao atualizar estoque';
+      setError(errorMessage);
+      toastError(errorMessage);
       console.error('Erro ao atualizar estoque:', err?.response?.data || err.message);
     } finally {
       setActionLoading('');
