@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerAdmin, loginAdmin, getAdminMe } from '../../../service/adminAuthService';
 import { useAdminAuthStore } from '../../../store/adminAuthStore';
@@ -6,6 +6,14 @@ import { useAdminAuthStore } from '../../../store/adminAuthStore';
 export default function AdminRegisterPage() {
   const navigate = useNavigate();
   const setSession = useAdminAuthStore((state) => state.setSession);
+  const isAuthenticated = useAdminAuthStore((state) => state.isAuthenticated);
+
+  // Redirecionar para dashboard se já estiver logado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

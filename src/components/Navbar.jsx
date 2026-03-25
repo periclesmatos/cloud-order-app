@@ -1,13 +1,15 @@
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useCustomerAuthStore } from '../store/customerAuthStore';
+import { useAdminAuthStore } from '../store/adminAuthStore';
 import { useProductStore } from '../store/productStore';
 
 export default function Navbar() {
-  const admin = false; // TODO: implementar autenticação real
+  const navigate = useNavigate();
   const location = useLocation();
   const user = useCustomerAuthStore((state) => state.customer);
   const isAuthenticated = useCustomerAuthStore((state) => state.isAuthenticated);
   const clearSession = useCustomerAuthStore((state) => state.clearSession);
+  const adminIsAuthenticated = useAdminAuthStore((state) => state.isAuthenticated);
   const cart = useProductStore((state) => state.cart);
   const cartItemsCount = Object.values(cart).reduce((acc, quantity) => acc + Number(quantity || 0), 0);
 
@@ -53,6 +55,14 @@ export default function Navbar() {
     window.location.href = '/';
   };
 
+  const handleAdminClick = () => {
+    if (adminIsAuthenticated) {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/admin/login', { replace: true });
+    }
+  };
+
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -63,55 +73,32 @@ export default function Navbar() {
           </div>
           <div>
             <p className="text-lg font-bold text-slate-900">Cloud Order</p>
-            <p className="text-xs text-slate-500">{admin ? '🔒 Painel Admin' : 'Pedidos online com entrega rápida'}</p>
+            <p className="text-xs text-slate-500">Pedidos online com entrega rápida</p>
           </div>
         </Link>
 
         <nav className="flex flex-wrap items-center gap-2">
-          {admin ? (
-            <>
-              <NavLink to="/admin" className={navClassName}>
-                Dashboard
-              </NavLink>
-              <NavLink to="/admin/products" className={navClassName}>
-                Produtos
-              </NavLink>
-            </>
-          ) : (
-            <>
-              <NavLink to="/" className={navClassName}>
-                Faça seu pedido
-              </NavLink>
-              <NavLink
-                to={isAuthenticated ? '/orders' : '/customer/auth'}
-                state={isAuthenticated ? undefined : { from: '/orders' }}
-                className={ordersNavClassName}
-              >
-                Meus pedidos
-              </NavLink>
-              <NavLink
-                to={isAuthenticated ? '/checkout' : '/customer/auth'}
-                state={isAuthenticated ? undefined : { from: '/checkout' }}
-                className={cartNavClassName}
-              >
-                Carrinho ({cartItemsCount})
-              </NavLink>
-            </>
-          )}
+          <NavLink to="/" className={navClassName}>
+            Faça seu pedido
+          </NavLink>
+          <NavLink
+            to={isAuthenticated ? '/orders' : '/customer/auth'}
+            state={isAuthenticated ? undefined : { from: '/orders' }}
+            className={ordersNavClassName}
+          >
+            Meus pedidos
+          </NavLink>
+          <NavLink
+            to={isAuthenticated ? '/checkout' : '/customer/auth'}
+            state={isAuthenticated ? undefined : { from: '/checkout' }}
+            className={cartNavClassName}
+          >
+            Carrinho ({cartItemsCount})
+          </NavLink>
         </nav>
 
         <div className="flex items-center gap-3">
-          {admin ? (
-            <>
-              <div className="hidden rounded-2xl bg-slate-100 px-4 py-2 text-right sm:block">
-                <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
-                <p className="text-xs text-slate-500">Admin</p>
-              </div>
-              <button type="button" onClick={handleAdminLogout} className="btn-secondary px-4 py-2 text-sm">
-                Sair
-              </button>
-            </>
-          ) : isAuthenticated && user ? (
+          {isAuthenticated && user ? (
             <>
               <div className="hidden rounded-2xl bg-slate-100 px-4 py-2 text-right sm:block">
                 <p className="text-sm font-semibold text-slate-900">{user.name}</p>
@@ -123,9 +110,13 @@ export default function Navbar() {
             </>
           ) : (
             !isAdminRoute && (
-              <Link to="/admin/login" className="btn-primary px-4 py-2 text-sm">
+              <button
+                type="button"
+                onClick={handleAdminClick}
+                className="btn-primary px-4 py-2 text-sm"
+              >
                 Painel administrativo
-              </Link>
+              </button>
             )
           )}
         </div>

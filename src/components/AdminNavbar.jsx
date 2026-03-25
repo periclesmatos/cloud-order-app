@@ -25,6 +25,9 @@ export default function AdminNavbar() {
           <Link to="/admin/products" className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
             Produtos
           </Link>
+          <Link to="/" className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
+            Faça seu pedido
+          </Link>
         </nav>
 
         {user && (
