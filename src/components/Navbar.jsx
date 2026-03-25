@@ -121,7 +121,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleAdminClick}
-                className="rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs font-medium transition whitespace-nowrap bg-brand-50 text-brand-700 hover:bg-brand-100"
+                className="rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs font-medium transition whitespace-nowrap bg-brand-50 text-brand-700 hover:bg-brand-100 cursor-pointer"
               >
                 <span className="hidden md:inline">Painel Admin</span>
                 <span className="md:hidden">👨‍💼</span>
