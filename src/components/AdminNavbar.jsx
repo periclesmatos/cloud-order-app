@@ -53,7 +53,7 @@ export default function AdminNavbar() {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="btn-primary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap"
+            className="rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs font-medium transition whitespace-nowrap bg-brand-50 text-brand-700 hover:bg-brand-100"
           >
             <span className="hidden md:inline">Home</span>
             <span className="md:hidden">🏠</span>
