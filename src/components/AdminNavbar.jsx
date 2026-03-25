@@ -46,14 +46,18 @@ export default function AdminNavbar() {
             <span className="hidden lg:inline text-xs">Produtos</span>
             <span className="lg:hidden">📦</span>
           </NavLink>
-          <NavLink to="/" className={navClassName} title="Homepage">
-            <span className="hidden lg:inline text-xs">Home</span>
-            <span className="lg:hidden">🏠</span>
-          </NavLink>
         </nav>
 
         {/* User Info & Logout */}
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-auto">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="btn-primary px-1.5 py-1 sm:px-2 sm:py-1.5 text-[11px] sm:text-xs whitespace-nowrap"
+          >
+            <span className="hidden md:inline">Home</span>
+            <span className="md:hidden">🏠</span>
+          </button>
           {user && (
             <div className="hidden rounded-lg bg-slate-100 px-2 py-1 text-right sm:flex flex-col">
               <p className="text-xs sm:text-xs font-semibold text-slate-900 leading-tight">{user.name.split(' ')[0]}</p>
