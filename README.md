@@ -1,16 +1,115 @@
-# React + Vite
+# Cloud Order - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma de e-commerce para gerenciamento de pedidos e produtos com painel administrativo.
 
-Currently, two official plugins are available:
+## 🚀 Setup Inicial
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 1. Instalar dependências
+```bash
+npm install
+```
 
-## React Compiler
+### 2. Configurar variáveis de ambiente
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Desenvolvimento:**
+```bash
+cp .env.example .env.local
+```
 
-## Expanding the ESLint configuration
+Edite `.env.local`:
+```env
+VITE_API_URL=http://localhost:3000
+VITE_API_TIMEOUT=10000
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Produção:**
+Arquivo `.env.production` já vem pré-configurado com HTTPS obrigatória.
+
+### 3. Iniciar desenvolvimento
+```bash
+npm run dev
+```
+
+Acesso: http://localhost:5173
+
+## 📦 Scripts Disponíveis
+
+- `npm run dev` - Inicia servidor de desenvolvimento
+- `npm run build` - Compila para produção
+- `npm run preview` - Visualiza build de produção localmente
+- `npm run lint` - Executa ESLint
+- `npm run format` - Formata código com Prettier
+- `npm run test` - Executa testes com Vitest
+
+## 🛠️ Stack Tecnológico
+
+- **React 19** - UI components
+- **React Router 7** - Roteamento
+- **Zustand 5** - State management
+- **Tailwind CSS 4** - Estilo
+- **Lucide React** - Ícones
+- **Axios** - HTTP client
+- **Zod** - Validação de dados
+- **Vite** - Build tool
+
+## 🔐 Segurança
+
+- ✅ Bearer JWT para autenticação
+- ✅ HTTPS obrigatória em produção
+- ✅ Variáveis de ambiente para configuração
+- ✅ SessionStorage para tokens
+- ✅ Validação de dados com Zod
+
+## 📱 Funcionalidades
+
+### Cliente
+- 🛒 Catálogo de produtos
+- 📦 Carrinho de compras
+- 📋 Fazer pedidos
+- 📊 Ver histórico de pedidos
+- 📍 Gerenciar endereços
+
+### Admin
+- 📈 Dashboard com analytics
+- 🏷️ Gerenciamento de produtos (CRUD)
+- 📦 Filtros por período e status
+- ⚠️ Alertas de estoque baixo
+- 👥 Gestão de clientes (planejado)
+
+## 🌍 Variáveis de Ambiente
+
+| Variável | Dev | Prod | Descrição |
+|----------|-----|------|-----------|
+| `VITE_API_URL` | http://localhost:3000 | https://api.cloud-order.com | URL da API backend |
+| `VITE_API_TIMEOUT` | 10000 | 10000 | Timeout HTTP em ms |
+
+## 📝 Commits
+
+Commits seguem o padrão:
+- `feat:` Nova funcionalidade
+- `fix:` Correção de bug
+- `security:` Melhoria de segurança
+- `style:` Formatação
+- `config:` Configuração
+- `docs:` Documentação
+
+## 🚀 Deploy
+
+**Vercel/Netlify:**
+1. Add `.env.production` com `VITE_API_URL=https://api.seu-dominio.com`
+2. Git push
+3. Build automático
+
+**Docker:**
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY . .
+RUN npm ci && npm run build
+EXPOSE 3000
+CMD ["npm", "preview"]
+```
+
+---
+
+**Última atualização:** 25/03/2026
