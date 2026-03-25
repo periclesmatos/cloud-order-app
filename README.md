@@ -5,6 +5,7 @@ Plataforma de e-commerce para gerenciamento de pedidos e produtos com painel adm
 ## 🚀 Setup Inicial
 
 ### 1. Instalar dependências
+
 ```bash
 npm install
 ```
@@ -12,11 +13,13 @@ npm install
 ### 2. Configurar variáveis de ambiente
 
 **Desenvolvimento:**
+
 ```bash
 cp .env.example .env.local
 ```
 
 Edite `.env.local`:
+
 ```env
 VITE_API_URL=http://localhost:3000
 VITE_API_TIMEOUT=10000
@@ -26,6 +29,7 @@ VITE_API_TIMEOUT=10000
 Arquivo `.env.production` já vem pré-configurado com HTTPS obrigatória.
 
 ### 3. Iniciar desenvolvimento
+
 ```bash
 npm run dev
 ```
@@ -63,6 +67,7 @@ Acesso: http://localhost:5173
 ## 📱 Funcionalidades
 
 ### Cliente
+
 - 🛒 Catálogo de produtos
 - 📦 Carrinho de compras
 - 📋 Fazer pedidos
@@ -70,6 +75,7 @@ Acesso: http://localhost:5173
 - 📍 Gerenciar endereços
 
 ### Admin
+
 - 📈 Dashboard com analytics
 - 🏷️ Gerenciamento de produtos (CRUD)
 - 📦 Filtros por período e status
@@ -78,14 +84,15 @@ Acesso: http://localhost:5173
 
 ## 🌍 Variáveis de Ambiente
 
-| Variável | Dev | Prod | Descrição |
-|----------|-----|------|-----------|
-| `VITE_API_URL` | http://localhost:3000 | https://api.cloud-order.com | URL da API backend |
-| `VITE_API_TIMEOUT` | 10000 | 10000 | Timeout HTTP em ms |
+| Variável           | Dev                   | Prod                        | Descrição          |
+| ------------------ | --------------------- | --------------------------- | ------------------ |
+| `VITE_API_URL`     | http://localhost:3000 | https://api.cloud-order.com | URL da API backend |
+| `VITE_API_TIMEOUT` | 10000                 | 10000                       | Timeout HTTP em ms |
 
 ## 📝 Commits
 
 Commits seguem o padrão:
+
 - `feat:` Nova funcionalidade
 - `fix:` Correção de bug
 - `security:` Melhoria de segurança
@@ -96,11 +103,13 @@ Commits seguem o padrão:
 ## 🚀 Deploy
 
 **Vercel/Netlify:**
+
 1. Add `.env.production` com `VITE_API_URL=https://api.seu-dominio.com`
 2. Git push
 3. Build automático
 
 **Docker:**
+
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app

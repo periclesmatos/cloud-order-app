@@ -4,13 +4,13 @@ import { useCallback } from 'react';
 /**
  * Hook customizado para gerenciar notificações toast
  * Facilita o uso de toasts em toda a aplicação
- * 
+ *
  * @example
  * const { success, error, loading, info } = useToast();
- * 
+ *
  * success('Produto criado!');
  * const toastId = loading('Salvando...');
- * 
+ *
  * // Depois:
  * toast.dismiss(toastId);
  * success('Salvo com sucesso!');

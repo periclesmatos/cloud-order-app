@@ -9,7 +9,7 @@ export default function AdminLoginPage() {
   const location = useLocation();
   const setSession = useAdminAuthStore((state) => state.setSession);
   const isAuthenticated = useAdminAuthStore((state) => state.isAuthenticated);
-  const { success, error: toastError, loading: toastLoading } = useToast();
+  const { success, error: toastError } = useToast();
 
   // Redirecionar para dashboard se já estiver logado
   useEffect(() => {

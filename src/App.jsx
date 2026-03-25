@@ -13,6 +13,7 @@ import HomePage from './pages/home/HomePage';
 import MyOrdersPage from './pages/orders/MyOrdersPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 
 export default function App() {
   const location = useLocation();
@@ -67,6 +68,14 @@ export default function App() {
             element={
               <RequireAdminAuth>
                 <AdminProductsPage />
+              </RequireAdminAuth>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <RequireAdminAuth>
+                <AdminOrdersPage />
               </RequireAdminAuth>
             }
           />

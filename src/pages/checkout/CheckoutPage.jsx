@@ -75,7 +75,7 @@ export default function CheckoutPage() {
   const accessToken = useCustomerAuthStore((state) => state.accessToken);
   const setCustomer = useCustomerAuthStore((state) => state.setCustomer);
   const setLastOrder = useOrderStore((state) => state.setLastOrder);
-  const { success, error: toastError, loading: toastLoading } = useToast();
+  const { success, error: toastError } = useToast();
 
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);

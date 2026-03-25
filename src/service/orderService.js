@@ -39,3 +39,33 @@ export async function cancelOrder(orderId, accessToken) {
 
   return response.data;
 }
+
+export async function getAllOrders(accessToken) {
+  const response = await apiClient.get('/orders', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!Array.isArray(response.data)) {
+    return [];
+  }
+
+  return response.data;
+}
+
+export async function updateOrderStatus(orderId, status, accessToken) {
+  const response = await apiClient.patch(
+    `/orders/${orderId}/status`,
+    {
+      status,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return response.data;
+}

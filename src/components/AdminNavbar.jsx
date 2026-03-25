@@ -35,6 +35,9 @@ export default function AdminNavbar() {
           <NavLink to="/admin" end className={navClassName}>
             Dashboard
           </NavLink>
+          <NavLink to="/admin/orders" className={navClassName}>
+            Pedidos
+          </NavLink>
           <NavLink to="/admin/products" className={navClassName}>
             Produtos
           </NavLink>

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, CheckCircle2, TrendingUp, ShoppingCart, Users, AlertTriangle } from 'lucide-react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Package, CheckCircle2, TrendingUp, ShoppingCart, Users, AlertTriangle, ArrowRight } from 'lucide-react';
 import { getDashboardStats } from '../../service/dashboardService';
 import { useAdminAuthStore } from '../../store/adminAuthStore';
 import { formatCurrency } from '../../utils/format';
@@ -8,95 +8,58 @@ import { getOrderStatusLabel } from '../../utils/orderStatus';
 
 function StatCard({ icon: Icon, label, value, trend = null, gradient = 'from-blue-500 to-blue-600' }) {
   return (
-    <article className={`card overflow-hidden p-6 transition hover:shadow-lg`}>
-      <div className="flex items-start justify-between">
+    <article className="card overflow-hidden p-3 transition hover:shadow-lg border border-slate-200">
+      <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="mt-3 text-4xl font-bold text-slate-900">{value}</p>
+          <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
+          <p className="text-2xl font-bold text-slate-900">{value}</p>
           {trend && (
-            <p className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
               <TrendingUp className="h-3 w-3" />
               {trend}
             </p>
           )}
         </div>
-        <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-md`}>
-          <Icon className="h-8 w-8 text-white" />
+        <div className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} shadow-md`}>
+          <Icon className="h-7 w-7 text-white" />
         </div>
       </div>
     </article>
   );
 }
 
-function OrderStatusChart({ orders }) {
+function QuickStatusChart({ orders }) {
   const statusCounts = useMemo(() => {
-    if (!orders.length) {
-      return {
-        CREATED: 0,
-        SENT: 0,
-        COMPLETED: 0,
-        CANCELED: 0,
-      };
-    }
-
-    const counts = {
-      CREATED: 0,
-      SENT: 0,
-      COMPLETED: 0,
-      CANCELED: 0,
-    };
-
+    const counts = { CREATED: 0, SENT: 0, COMPLETED: 0, CANCELED: 0 };
     orders.forEach((order) => {
-      if (Object.hasOwn(counts, order.status)) {
-        counts[order.status]++;
-      }
+      if (Object.prototype.hasOwnProperty.call(counts, order.status)) counts[order.status]++;
     });
-
     return counts;
   }, [orders]);
 
-  const statusBarColors = {
-    CREATED: 'bg-blue-500',
-    SENT: 'bg-amber-500',
-    COMPLETED: 'bg-emerald-500',
-    CANCELED: 'bg-rose-500',
+  const statusColors = {
+    CREATED: { bar: 'bg-blue-500', bg: 'bg-blue-50 text-blue-700' },
+    SENT: { bar: 'bg-amber-500', bg: 'bg-amber-50 text-amber-700' },
+    COMPLETED: { bar: 'bg-emerald-500', bg: 'bg-emerald-50 text-emerald-700' },
+    CANCELED: { bar: 'bg-rose-500', bg: 'bg-rose-50 text-rose-700' },
   };
-
-  const statusBgColors = {
-    CREATED: 'bg-blue-50 text-blue-700',
-    SENT: 'bg-amber-50 text-amber-700',
-    COMPLETED: 'bg-emerald-50 text-emerald-700',
-    CANCELED: 'bg-rose-50 text-rose-700',
-  };
-
-  if (!orders.length) {
-    return (
-      <article className="card p-6">
-        <h3 className="font-bold text-slate-900">Pedidos por Status</h3>
-        <p className="mt-4 text-sm text-slate-500">Nenhum pedido encontrado.</p>
-      </article>
-    );
-  }
 
   return (
     <article className="card p-6">
-      <h3 className="text-lg font-bold text-slate-900">Distribuição de Pedidos</h3>
-      <div className="mt-8 space-y-5">
+      <h3 className="text-lg font-bold text-slate-900 mb-4">Status dos Pedidos</h3>
+      <div className="space-y-3">
         {Object.entries(statusCounts).map(([status, count]) => {
-          const percentage = orders.length > 0 ? Math.round((count / orders.length) * 100) : 0;
+          const total = orders.length || 1;
+          const percentage = Math.round((count / total) * 100);
+          const config = statusColors[status];
           return (
-            <div key={status} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusBgColors[status]}`}>
-                    {getOrderStatusLabel(status)}
-                  </span>
-                  <span className="text-sm font-medium text-slate-600">{count}</span>
-                </div>
-                <span className="text-sm font-bold text-slate-900">{percentage}%</span>
+            <div key={status}>
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${config.bg}`}>{getOrderStatusLabel(status)}</span>
+                <span className="text-sm font-bold text-slate-900">{count}</span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                <div className={`h-full transition-all duration-500 ${statusBarColors[status]}`} style={{ width: `${percentage}%` }} />
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className={`h-full ${config.bar} transition-all`} style={{ width: `${percentage}%` }} />
               </div>
             </div>
           );
@@ -108,17 +71,19 @@ function OrderStatusChart({ orders }) {
 
 function LowStockProducts({ products }) {
   const lowStockItems = useMemo(() => {
-    return products.filter((p) => Number(p.amount) <= 5).sort((a, b) => Number(a.amount) - Number(b.amount));
+    return products
+      .filter((p) => Number(p.amount) <= 5)
+      .sort((a, b) => Number(a.amount) - Number(b.amount))
+      .slice(0, 5);
   }, [products]);
 
   if (!lowStockItems.length) {
     return (
       <article className="card p-6">
-        <h3 className="text-lg font-bold text-slate-900">Estoque Baixo</h3>
-        <div className="mt-6 flex flex-col items-center justify-center rounded-2xl bg-emerald-50 py-12">
-          <CheckCircle2 className="h-12 w-12 text-emerald-600" />
-          <p className="mt-3 text-sm font-medium text-emerald-700">Nenhum produto com estoque baixo</p>
-          <p className="mt-1 text-xs text-emerald-600">Todos os produtos estão com estoque normal.</p>
+        <h3 className="text-lg font-bold text-slate-900 mb-4">Estoque Baixo</h3>
+        <div className="flex flex-col items-center justify-center p-6 bg-emerald-50 rounded-lg">
+          <CheckCircle2 className="h-8 w-8 text-emerald-600 mb-2" />
+          <p className="text-sm text-emerald-700">Nenhum produto com estoque baixo</p>
         </div>
       </article>
     );
@@ -126,31 +91,25 @@ function LowStockProducts({ products }) {
 
   return (
     <article className="card p-6">
-      <h3 className="text-lg font-bold text-slate-900">Produtos com Estoque Baixo (≤ 5 unidades)</h3>
-      <div className="mt-6 space-y-2">
-        {lowStockItems.slice(0, 5).map((product) => {
+      <h3 className="text-lg font-bold text-slate-900 mb-4">Produtos com Estoque Baixo</h3>
+      <div className="space-y-2">
+        {lowStockItems.map((product) => {
           const stock = Number(product.amount);
           const isVeryLow = stock <= 2;
           return (
             <div
               key={product.id}
-              className={`flex items-center gap-3 rounded-xl border-2 p-4 transition ${
-                isVeryLow ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50 hover:border-amber-300'
+              className={`flex items-center justify-between p-3 rounded-lg border-2 ${
+                isVeryLow ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50'
               }`}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-red-600 text-sm font-bold text-white">
-                {stock}
-              </div>
               <div className="flex-1">
-                <p className={`font-semibold ${isVeryLow ? 'text-red-700' : 'text-amber-700'}`}>{product.name}</p>
-                <p className={`text-xs ${isVeryLow ? 'text-red-600' : 'text-amber-600'}`}>{formatCurrency(product.price)}</p>
+                <p className={`font-semibold text-sm ${isVeryLow ? 'text-red-700' : 'text-amber-700'}`}>{product.name}</p>
               </div>
-              {isVeryLow && (
-                <div className="flex items-center gap-1 rounded-full bg-red-100 px-2 py-1">
-                  <AlertTriangle className="h-3 w-3 text-red-600" />
-                  <span className="text-xs font-bold text-red-600">CRÍTICO</span>
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                <span className={`text-xs font-bold ${isVeryLow ? 'text-red-600' : 'text-amber-600'}`}>{stock} un</span>
+                {isVeryLow && <AlertTriangle className="h-4 w-4 text-red-600" />}
+              </div>
             </div>
           );
         })}
@@ -168,66 +127,43 @@ export default function AdminDashboard() {
   const [data, setData] = useState({ orders: [], products: [], customers: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [timeFilter, setTimeFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
 
-  useEffect(() => {
-    async function loadData() {
-      if (!accessToken) {
-        setLoading(false);
+  const loadData = useCallback(async () => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const stats = await getDashboardStats(accessToken);
+      setData(stats);
+    } catch (err) {
+      const status = err?.response?.status;
+      const errorMsg = err?.response?.data?.error || 'Erro ao carregar dados da dashboard.';
+
+      if (status === 401 || status === 403) {
+        clearSession();
+        navigate('/admin/login');
         return;
       }
 
-      try {
-        const stats = await getDashboardStats(accessToken);
-        setData(stats);
-      } catch (err) {
-        const status = err?.response?.status;
-        const errorMsg = err?.response?.data?.error || 'Erro ao carregar dados da dashboard.';
-
-        if (status === 401 || status === 403) {
-          clearSession();
-          navigate('/admin/login');
-          return;
-        }
-
-        setError(errorMsg);
-        console.error('Erro ao carregar dashboard:', status, err?.response?.data);
-      } finally {
-        setLoading(false);
-      }
+      setError(errorMsg);
+      console.error('Erro ao carregar dashboard:', status, err?.response?.data);
+    } finally {
+      setLoading(false);
     }
-
-    loadData();
   }, [accessToken, clearSession, navigate]);
 
-  // Função para filtrar pedidos por período de tempo
-  const getFilteredOrders = useMemo(() => {
-    if (!data.orders.length) return [];
-
-    const now = new Date();
-    return data.orders.filter((order) => {
-      const orderDate = new Date(order.createdAt);
-      const daysDiff = Math.floor((now - orderDate) / (1000 * 60 * 60 * 24));
-
-      let timeMatches = true;
-      if (timeFilter === '7days') timeMatches = daysDiff <= 7;
-      else if (timeFilter === '30days') timeMatches = daysDiff <= 30;
-      else if (timeFilter === '90days') timeMatches = daysDiff <= 90;
-
-      const statusMatches = statusFilter === 'all' || order.status === statusFilter;
-
-      return timeMatches && statusMatches;
-    });
-  }, [data.orders, timeFilter, statusFilter]);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const stats = useMemo(() => {
-    const totalOrders = getFilteredOrders.length || 0;
-    const completedOrders = getFilteredOrders.filter((o) => o.status === 'COMPLETED').length || 0;
-    const totalRevenue = getFilteredOrders.filter((o) => o.status === 'COMPLETED').reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
+    const totalOrders = data.orders.length || 0;
+    const completedOrders = data.orders.filter((o) => o.status === 'COMPLETED').length || 0;
+    const totalRevenue = data.orders.filter((o) => o.status === 'COMPLETED').reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
     const totalProducts = data.products.filter((p) => p.isActive).length || 0;
     const totalCustomers = data.customers.length || 0;
-    const lowStockCount = data.products.filter((p) => Number(p.amount) <= 5).length || 0;
 
     return {
       totalOrders,
@@ -235,9 +171,8 @@ export default function AdminDashboard() {
       totalRevenue,
       totalProducts,
       totalCustomers,
-      lowStockCount,
     };
-  }, [getFilteredOrders, data.products, data.customers]);
+  }, [data.orders, data.products, data.customers]);
 
   if (loading) {
     return (
@@ -250,79 +185,45 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <section>
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-600">Painel Administrativo</p>
-        <h1 className="section-title mt-2">Dashboard</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="section-title">Dashboard</h1>
+        <p className="mt-2 text-slate-600">
           Bem-vindo, <span className="font-semibold text-slate-900">{user?.name || 'Administrador'}</span>!
         </p>
       </section>
 
       {error && (
-        <section className="card p-4">
-          <p className="text-sm font-medium text-red-600">{error}</p>
+        <section className="card p-4 bg-rose-50 border-2 border-rose-200">
+          <p className="text-sm font-medium text-rose-600">{error}</p>
         </section>
       )}
 
-      <section className="card p-4">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">Período</label>
-            <select className="input" value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)}>
-              <option value="all">Todos os períodos</option>
-              <option value="7days">Últimos 7 dias</option>
-              <option value="30days">Últimos 30 dias</option>
-              <option value="90days">Últimos 90 dias</option>
-            </select>
-          </div>
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">Status do Pedido</label>
-            <select className="input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="all">Todos os status</option>
-              <option value="CREATED">Criado</option>
-              <option value="SENT">Enviado</option>
-              <option value="COMPLETED">Concluído</option>
-              <option value="CANCELED">Cancelado</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <StatCard icon={Package} label="Total de Pedidos" value={stats.totalOrders} gradient="from-blue-500 to-blue-600" />
-        <StatCard
-          icon={CheckCircle2}
-          label="Pedidos Finalizados"
-          value={stats.completedOrders}
-          gradient="from-emerald-500 to-emerald-600"
-        />
-        <StatCard
-          icon={TrendingUp}
-          label="Receita (Completos)"
-          value={formatCurrency(stats.totalRevenue)}
-          gradient="from-amber-500 to-amber-600"
-        />
-        <StatCard icon={ShoppingCart} label="Produtos Ativos" value={stats.totalProducts} gradient="from-purple-500 to-purple-600" />
-        <StatCard icon={Users} label="Total de Clientes" value={stats.totalCustomers} gradient="from-pink-500 to-pink-600" />
-        <StatCard
-          icon={AlertTriangle}
-          label="Estoque Baixo"
-          value={stats.lowStockCount}
-          trend="Requer atenção"
-          gradient="from-red-500 to-red-600"
-        />
+        <StatCard icon={CheckCircle2} label="Concluídos" value={stats.completedOrders} gradient="from-emerald-500 to-emerald-600" />
+        <StatCard icon={TrendingUp} label="Receita" value={formatCurrency(stats.totalRevenue)} gradient="from-amber-500 to-amber-600" />
+        <StatCard icon={ShoppingCart} label="Produtos" value={stats.totalProducts} gradient="from-purple-500 to-purple-600" />
+        <StatCard icon={Users} label="Clientes" value={stats.totalCustomers} gradient="from-pink-500 to-pink-600" />
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-2">
-        {getFilteredOrders.length > 0 ? (
-          <OrderStatusChart orders={getFilteredOrders} />
-        ) : (
-          <article className="card p-6">Nenhum pedido encontrado</article>
-        )}
-        {data.products.length > 0 ? (
-          <LowStockProducts products={data.products} />
-        ) : (
-          <article className="card p-6">Nenhum produto encontrado</article>
-        )}
+      <section className="grid gap-6 lg:grid-cols-2">
+        <QuickStatusChart orders={data.orders} />
+        <LowStockProducts products={data.products} />
+      </section>
+
+      <section className="card p-6 bg-gradient-to-r from-blue-50 to-brand-50 border-2 border-blue-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">Gerenciar Pedidos</h3>
+            <p className="text-sm text-slate-600 mt-1">Visualize e altere o status de todos os pedidos com filtros avançados</p>
+          </div>
+          <Link
+            to="/admin/orders"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+          >
+            Ir para Pedidos
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </section>
     </div>
   );
