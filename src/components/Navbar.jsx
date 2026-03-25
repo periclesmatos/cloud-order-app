@@ -110,11 +110,7 @@ export default function Navbar() {
             </>
           ) : (
             !isAdminRoute && (
-              <button
-                type="button"
-                onClick={handleAdminClick}
-                className="btn-primary px-4 py-2 text-sm"
-              >
+              <button type="button" onClick={handleAdminClick} className="btn-primary px-4 py-2 text-sm">
                 Painel administrativo
               </button>
             )

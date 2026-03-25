@@ -123,21 +123,18 @@ function LowStockProducts({ products }) {
           const stock = Number(product.amount);
           const isVeryLow = stock <= 2;
           return (
-            <div key={product.id} className={`flex items-center gap-3 rounded-xl border-2 p-4 transition ${
-              isVeryLow 
-                ? 'border-red-200 bg-red-50' 
-                : 'border-amber-200 bg-amber-50 hover:border-amber-300'
-            }`}>
+            <div
+              key={product.id}
+              className={`flex items-center gap-3 rounded-xl border-2 p-4 transition ${
+                isVeryLow ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50 hover:border-amber-300'
+              }`}
+            >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-red-600 text-sm font-bold text-white">
                 {stock}
               </div>
               <div className="flex-1">
-                <p className={`font-semibold ${isVeryLow ? 'text-red-700' : 'text-amber-700'}`}>
-                  {product.name}
-                </p>
-                <p className={`text-xs ${isVeryLow ? 'text-red-600' : 'text-amber-600'}`}>
-                  {formatCurrency(product.price)}
-                </p>
+                <p className={`font-semibold ${isVeryLow ? 'text-red-700' : 'text-amber-700'}`}>{product.name}</p>
+                <p className={`text-xs ${isVeryLow ? 'text-red-600' : 'text-amber-600'}`}>{formatCurrency(product.price)}</p>
               </div>
               {isVeryLow && (
                 <div className="flex items-center gap-1 rounded-full bg-red-100 px-2 py-1">
@@ -178,13 +175,13 @@ export default function AdminDashboard() {
       } catch (err) {
         const status = err?.response?.status;
         const errorMsg = err?.response?.data?.error || 'Erro ao carregar dados da dashboard.';
-        
+
         if (status === 401 || status === 403) {
           clearSession();
           navigate('/admin/login');
           return;
         }
-        
+
         setError(errorMsg);
         console.error('Erro ao carregar dashboard:', status, err?.response?.data);
       } finally {
@@ -218,9 +215,7 @@ export default function AdminDashboard() {
   const stats = useMemo(() => {
     const totalOrders = getFilteredOrders.length || 0;
     const completedOrders = getFilteredOrders.filter((o) => o.status === 'COMPLETED').length || 0;
-    const totalRevenue = getFilteredOrders
-      .filter((o) => o.status === 'COMPLETED')
-      .reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
+    const totalRevenue = getFilteredOrders.filter((o) => o.status === 'COMPLETED').reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
     const totalProducts = data.products.filter((p) => p.isActive).length || 0;
     const totalCustomers = data.customers.length || 0;
     const lowStockCount = data.products.filter((p) => Number(p.amount) <= 5).length || 0;
@@ -253,7 +248,9 @@ export default function AdminDashboard() {
       <section>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-600">Painel Administrativo</p>
         <h1 className="section-title mt-2">Dashboard</h1>
-        <p className="mt-2 text-sm text-slate-600">Bem-vindo, <span className="font-semibold text-slate-900">{user?.name || 'Administrador'}</span>!</p>
+        <p className="mt-2 text-sm text-slate-600">
+          Bem-vindo, <span className="font-semibold text-slate-900">{user?.name || 'Administrador'}</span>!
+        </p>
       </section>
 
       {error && (
@@ -266,11 +263,7 @@ export default function AdminDashboard() {
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Período</label>
-            <select 
-              className="input" 
-              value={timeFilter} 
-              onChange={(e) => setTimeFilter(e.target.value)}
-            >
+            <select className="input" value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)}>
               <option value="all">Todos os períodos</option>
               <option value="7days">Últimos 7 dias</option>
               <option value="30days">Últimos 30 dias</option>
@@ -279,11 +272,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Status do Pedido</label>
-            <select 
-              className="input" 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
+            <select className="input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="all">Todos os status</option>
               <option value="CREATED">Criado</option>
               <option value="SENT">Enviado</option>
@@ -295,48 +284,41 @@ export default function AdminDashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard 
-          icon={Package} 
-          label="Total de Pedidos" 
-          value={stats.totalOrders} 
-          gradient="from-blue-500 to-blue-600"
-        />
-        <StatCard 
-          icon={CheckCircle2} 
-          label="Pedidos Finalizados" 
-          value={stats.completedOrders} 
+        <StatCard icon={Package} label="Total de Pedidos" value={stats.totalOrders} gradient="from-blue-500 to-blue-600" />
+        <StatCard
+          icon={CheckCircle2}
+          label="Pedidos Finalizados"
+          value={stats.completedOrders}
           gradient="from-emerald-500 to-emerald-600"
         />
-        <StatCard 
-          icon={TrendingUp} 
-          label="Receita (Completos)" 
-          value={formatCurrency(stats.totalRevenue)} 
+        <StatCard
+          icon={TrendingUp}
+          label="Receita (Completos)"
+          value={formatCurrency(stats.totalRevenue)}
           gradient="from-amber-500 to-amber-600"
         />
-        <StatCard 
-          icon={ShoppingCart} 
-          label="Produtos Ativos" 
-          value={stats.totalProducts} 
-          gradient="from-purple-500 to-purple-600"
-        />
-        <StatCard 
-          icon={Users} 
-          label="Total de Clientes" 
-          value={stats.totalCustomers} 
-          gradient="from-pink-500 to-pink-600"
-        />
-        <StatCard 
-          icon={AlertTriangle} 
-          label="Estoque Baixo" 
-          value={stats.lowStockCount} 
-          trend="Requer atenção" 
+        <StatCard icon={ShoppingCart} label="Produtos Ativos" value={stats.totalProducts} gradient="from-purple-500 to-purple-600" />
+        <StatCard icon={Users} label="Total de Clientes" value={stats.totalCustomers} gradient="from-pink-500 to-pink-600" />
+        <StatCard
+          icon={AlertTriangle}
+          label="Estoque Baixo"
+          value={stats.lowStockCount}
+          trend="Requer atenção"
           gradient="from-red-500 to-red-600"
         />
       </section>
 
       <section className="grid gap-8 lg:grid-cols-2">
-        {getFilteredOrders.length > 0 ? <OrderStatusChart orders={getFilteredOrders} /> : <article className="card p-6">Nenhum pedido encontrado</article>}
-        {data.products.length > 0 ? <LowStockProducts products={data.products} /> : <article className="card p-6">Nenhum produto encontrado</article>}
+        {getFilteredOrders.length > 0 ? (
+          <OrderStatusChart orders={getFilteredOrders} />
+        ) : (
+          <article className="card p-6">Nenhum pedido encontrado</article>
+        )}
+        {data.products.length > 0 ? (
+          <LowStockProducts products={data.products} />
+        ) : (
+          <article className="card p-6">Nenhum produto encontrado</article>
+        )}
       </section>
     </div>
   );
