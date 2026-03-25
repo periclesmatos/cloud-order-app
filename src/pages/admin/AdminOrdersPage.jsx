@@ -50,7 +50,10 @@ function OrderCard({ order, onStatusChange, isUpdating, onViewDetails }) {
   const actionButtons = getActionButtons();
 
   return (
-    <div className="rounded-xl border-2 border-slate-200 bg-white hover:shadow-lg transition overflow-hidden cursor-pointer group" onClick={() => onViewDetails(order.id)}>
+    <div
+      className="rounded-xl border-2 border-slate-200 bg-white hover:shadow-lg transition overflow-hidden cursor-pointer group"
+      onClick={() => onViewDetails(order.id)}
+    >
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -384,7 +387,13 @@ export default function AdminOrdersPage() {
             <span className="font-semibold">{orders.length}</span> pedidos
           </div>
           {filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} onStatusChange={handleStatusChange} isUpdating={updatingOrderId === order.id} onViewDetails={handleViewDetails} />
+            <OrderCard
+              key={order.id}
+              order={order}
+              onStatusChange={handleStatusChange}
+              isUpdating={updatingOrderId === order.id}
+              onViewDetails={handleViewDetails}
+            />
           ))}
         </section>
       )}

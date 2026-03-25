@@ -202,9 +202,7 @@ export default function AdminOrderDetailPage() {
                       <p className="text-sm text-slate-600">
                         {order.deliveryAddress.city}, {order.deliveryAddress.state} - {order.deliveryAddress.postalCode}
                       </p>
-                      {order.deliveryAddress.complement && (
-                        <p className="text-sm text-slate-600">{order.deliveryAddress.complement}</p>
-                      )}
+                      {order.deliveryAddress.complement && <p className="text-sm text-slate-600">{order.deliveryAddress.complement}</p>}
                     </div>
                   </div>
                 </>
