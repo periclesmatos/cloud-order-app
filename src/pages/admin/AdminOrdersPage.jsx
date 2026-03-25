@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Calendar, Filter, X, Clock, Package, DollarSign, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Search, Calendar, Filter, X, Clock, Package, DollarSign, CheckCircle2, AlertTriangle, Send, Check, Ban } from 'lucide-react';
 import { getDashboardStats } from '../../service/dashboardService';
 import { updateOrderStatus } from '../../service/orderService';
 import { useAdminAuthStore } from '../../store/adminAuthStore';
@@ -21,14 +21,29 @@ function OrderStatusBadge({ status }) {
 }
 
 function OrderCard({ order, onStatusChange, isUpdating }) {
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
   const isCompleted = order.status === 'COMPLETED';
+  const isCanceled = order.status === 'CANCELED';
 
   const handleStatusChange = async (newStatus) => {
-    if (newStatus === order.status || isCompleted) return;
-    setShowStatusMenu(false);
+    if (newStatus === order.status) return;
     await onStatusChange(order.id, newStatus);
   };
+
+  const getActionButtons = () => {
+    if (isCompleted || isCanceled) return [];
+
+    const buttons = [];
+    if (order.status === 'CREATED') {
+      buttons.push({ label: 'Enviar', status: 'SENT', icon: Send, color: 'bg-blue-400 hover:bg-blue-500' });
+      buttons.push({ label: 'Cancelar', status: 'CANCELED', icon: Ban, color: 'bg-rose-400 hover:bg-rose-500' });
+    } else if (order.status === 'SENT') {
+      buttons.push({ label: 'Concluir', status: 'COMPLETED', icon: Check, color: 'bg-emerald-400 hover:bg-emerald-500' });
+      buttons.push({ label: 'Cancelar', status: 'CANCELED', icon: Ban, color: 'bg-rose-400 hover:bg-rose-500' });
+    }
+    return buttons;
+  };
+
+  const actionButtons = getActionButtons();
 
   return (
     <div className="rounded-xl border-2 border-slate-200 bg-white hover:shadow-lg transition overflow-hidden">
@@ -92,43 +107,33 @@ function OrderCard({ order, onStatusChange, isUpdating }) {
             )}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => setShowStatusMenu(!showStatusMenu)}
-              disabled={isCompleted || isUpdating}
-              className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm transition ${
-                isCompleted
-                  ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
-                  : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              {isUpdating ? '...' : 'Alterar'}
-            </button>
-
-            {showStatusMenu && !isCompleted && (
-              <div className="absolute right-0 mt-12 bg-white border-2 border-slate-300 rounded-lg shadow-xl z-10 w-44">
-                {ORDER_STATUSES.map((status) => (
-                  <button
-                    key={status.value}
-                    onClick={() => handleStatusChange(status.value)}
-                    disabled={order.status === status.value}
-                    className={`w-full text-left px-4 py-2 text-sm transition ${
-                      order.status === status.value ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    {status.label}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="flex flex-col gap-2 min-w-[100px]">
+            {actionButtons.map((btn) => {
+              const ButtonIcon = btn.icon;
+              return (
+                <button
+                  key={btn.status}
+                  onClick={() => handleStatusChange(btn.status)}
+                  disabled={isUpdating}
+                  className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm text-white transition ${btn.color} disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <ButtonIcon className="h-4 w-4" />
+                  {isUpdating ? '...' : btn.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {isCompleted && (
-        <div className="bg-emerald-50 border-t-2 border-emerald-100 px-5 py-3 flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-          <p className="text-sm font-semibold text-emerald-700">Pedido concluído - sem alterações</p>
+      {(isCompleted || isCanceled) && (
+        <div
+          className={`${isCompleted ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'} border-t-2 px-5 py-3 flex items-center gap-2`}
+        >
+          <CheckCircle2 className={`h-4 w-4 ${isCompleted ? 'text-emerald-600' : 'text-rose-600'} flex-shrink-0`} />
+          <p className={`text-sm font-semibold ${isCompleted ? 'text-emerald-700' : 'text-rose-700'}`}>
+            {isCompleted ? 'Pedido concluído - sem alterações' : 'Pedido cancelado - sem alterações'}
+          </p>
         </div>
       )}
     </div>

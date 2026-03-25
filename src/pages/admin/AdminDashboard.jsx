@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Package, CheckCircle2, TrendingUp, ShoppingCart, Users, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Package, CheckCircle2, TrendingUp, ShoppingCart, Users, AlertTriangle, ArrowRight, Calendar, X, ChevronDown } from 'lucide-react';
 import { getDashboardStats } from '../../service/dashboardService';
 import { useAdminAuthStore } from '../../store/adminAuthStore';
 import { formatCurrency } from '../../utils/format';
@@ -127,6 +127,9 @@ export default function AdminDashboard() {
   const [data, setData] = useState({ orders: [], products: [], customers: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [showQuickPeriod, setShowQuickPeriod] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!accessToken) {
@@ -158,10 +161,54 @@ export default function AdminDashboard() {
     loadData();
   }, [loadData]);
 
+  const formatDateToInput = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleQuickPeriod = (period) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(today);
+    endDate.setHours(23, 59, 59, 999);
+
+    if (period === 'today') {
+      setDateFrom(formatDateToInput(today));
+      setDateTo(formatDateToInput(today));
+    } else if (period === '7days') {
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() - 7);
+      setDateFrom(formatDateToInput(startDate));
+      setDateTo(formatDateToInput(today));
+    } else if (period === '30days') {
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() - 30);
+      setDateFrom(formatDateToInput(startDate));
+      setDateTo(formatDateToInput(today));
+    }
+    setShowQuickPeriod(false);
+  };
+
   const stats = useMemo(() => {
-    const totalOrders = data.orders.length || 0;
-    const completedOrders = data.orders.filter((o) => o.status === 'COMPLETED').length || 0;
-    const totalRevenue = data.orders.filter((o) => o.status === 'COMPLETED').reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
+    let filteredOrders = data.orders || [];
+
+    if (dateFrom) {
+      const [year, month, day] = dateFrom.split('-');
+      const fromDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+      filteredOrders = filteredOrders.filter((o) => new Date(o.createdAt) >= fromDate);
+    }
+
+    if (dateTo) {
+      const [year, month, day] = dateTo.split('-');
+      const toDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+      filteredOrders = filteredOrders.filter((o) => new Date(o.createdAt) <= toDate);
+    }
+
+    const totalOrders = filteredOrders.length || 0;
+    const completedOrders = filteredOrders.filter((o) => o.status === 'COMPLETED').length || 0;
+    const totalRevenue = filteredOrders.filter((o) => o.status === 'COMPLETED').reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
     const totalProducts = data.products.filter((p) => p.isActive).length || 0;
     const totalCustomers = data.customers.length || 0;
 
@@ -172,7 +219,7 @@ export default function AdminDashboard() {
       totalProducts,
       totalCustomers,
     };
-  }, [data.orders, data.products, data.customers]);
+  }, [data.orders, data.products, data.customers, dateFrom, dateTo]);
 
   if (loading) {
     return (
@@ -184,12 +231,84 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <section>
-        <h1 className="section-title">Dashboard</h1>
-        <p className="mt-2 text-slate-600">
-          Bem-vindo, <span className="font-semibold text-slate-900">{user?.name || 'Administrador'}</span>!
-        </p>
-      </section>
+      <div className="flex items-start justify-between gap-8">
+        <section>
+          <h1 className="section-title">Dashboard</h1>
+          <p className="mt-2 text-slate-600">
+            Bem-vindo, <span className="font-semibold text-slate-900">{user?.name || 'Administrador'}</span>!
+          </p>
+        </section>
+
+        <section className="flex items-center gap-3 flex-wrap justify-end pt-1">
+          <div className="relative">
+            <button
+              onClick={() => setShowQuickPeriod(!showQuickPeriod)}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border-2 transition ${
+                showQuickPeriod
+                  ? 'bg-blue-50 border-blue-400 text-blue-700 shadow-md'
+                  : 'bg-white border-slate-300 text-slate-700 hover:border-blue-400 hover:text-blue-600'
+              }`}
+            >
+              <span>⏰ Período</span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${showQuickPeriod ? 'rotate-180' : ''}`} />
+            </button>
+            {showQuickPeriod && (
+              <div className="absolute right-0 mt-2 bg-white border-2 border-blue-200 rounded-lg shadow-xl z-10 w-48"
+>
+                <button
+                  onClick={() => handleQuickPeriod('today')}
+                  className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-700 font-medium border-b border-slate-100 transition"
+                >
+                  📅 Hoje
+                </button>
+                <button
+                  onClick={() => handleQuickPeriod('7days')}
+                  className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-700 font-medium border-b border-slate-100 transition"
+                >
+                  📊 Últimos 7 dias
+                </button>
+                <button
+                  onClick={() => handleQuickPeriod('30days')}
+                  className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-700 font-medium transition"
+                >
+                  📈 Últimos 30 dias
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-3 py-2">
+            <Calendar className="h-4 w-4 text-slate-500" />
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="text-sm border-none outline-none"
+            />
+          </div>
+          <div className="text-sm text-slate-500">até</div>
+          <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-3 py-2">
+            <Calendar className="h-4 w-4 text-slate-500" />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="text-sm border-none outline-none"
+            />
+          </div>
+          {(dateFrom || dateTo) && (
+            <button
+              onClick={() => {
+                setDateFrom('');
+                setDateTo('');
+              }}
+              className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 ml-2"
+            >
+              <X className="h-4 w-4" />
+              Limpar
+            </button>
+          )}
+        </section>
+      </div>
 
       {error && (
         <section className="card p-4 bg-rose-50 border-2 border-rose-200">
