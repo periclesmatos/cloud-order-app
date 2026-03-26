@@ -8,6 +8,7 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL:-http://3.17.62.139:3000}
         VITE_API_TIMEOUT: ${VITE_API_TIMEOUT:-10000}
+        VITE_REQUIRE_HTTPS: ${VITE_REQUIRE_HTTPS:-false}
     container_name: cloud-order-frontend
     ports:
       - '8080:8080'
@@ -19,7 +20,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 120s
 
 networks:
   cloud-order-network:
