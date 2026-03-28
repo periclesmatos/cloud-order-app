@@ -7,7 +7,6 @@ import { formatCurrency } from '../../utils/format';
 import { getOrderStatusLabel } from '../../utils/orderStatus';
 
 function StatCard({ icon: Icon, label, value, trend = null, gradient = 'from-blue-500 to-blue-600' }) {
-  // eslint-disable-line no-unused-vars
   return (
     <article className="card overflow-hidden p-3 transition hover:shadow-lg border border-slate-200">
       <div className="flex items-start justify-between gap-2">
